@@ -1,0 +1,39 @@
+/* /src/components/Button/Button.css */
+.main-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 4px;
+  }
+  
+  .main-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .main-button:disabled {
+    background-color: #007bff;
+    cursor: not-allowed;
+  }
+  
+  .plus-icon {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  

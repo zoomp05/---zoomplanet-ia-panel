@@ -1,0 +1,60 @@
+.appDevContainer {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+    padding: 20px;
+   
+  }
+  
+  .chatSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #efefef;
+  }
+  
+  .chatHeader {
+    padding: 16px;
+    border-bottom: 1px solid #efefef;
+  }
+  
+  .chatHeader h2 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+  }
+  
+  .chatWrapper {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .filesSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 300px;
+  }
+  
+  .filesHeader {
+    padding: 16px;
+  }
+  
+  .filesHeader h3 {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+  }
+  
+  .filesList {
+    flex: 1;
+    overflow: auto;
+    background: #efefef;
+    border-radius: 16px;
+    padding: 16px;
+  }

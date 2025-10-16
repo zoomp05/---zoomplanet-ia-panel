@@ -1,0 +1,96 @@
+.workspace-selector {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .workspace-selector-header h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .workspace-selector-content {
+    margin-bottom: 0.5rem;
+  }
+  
+  .workspace-display,
+  .workspace-empty {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background: #f8f9fa;
+  }
+  
+  .workspace-name {
+    font-weight: 500;
+    color: #2c3e50;
+  }
+  
+  .workspace-placeholder {
+    color: #6c757d;
+    font-style: italic;
+  }
+  
+  .workspace-action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: #4a90e2;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .workspace-action-button:hover {
+    background: #357abd;
+    transform: translateY(-1px);
+  }
+  
+  .workspace-description {
+    margin-top: 0.5rem;
+  }
+  
+  .workspace-description small {
+    color: #6c757d;
+    font-size: 0.875rem;
+  }
+  
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    .workspace-selector {
+      background: #2d2d2d;
+    }
+  
+    .workspace-selector-header h4 {
+      color: #e0e0e0;
+    }
+  
+    .workspace-display,
+    .workspace-empty {
+      background: #363636;
+      border-color: #404040;
+    }
+  
+    .workspace-name {
+      color: #e0e0e0;
+    }
+  
+    .workspace-placeholder {
+      color: #909090;
+    }
+  
+    .workspace-description small {
+      color: #909090;
+    }
+  }

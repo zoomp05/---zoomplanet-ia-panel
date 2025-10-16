@@ -1,0 +1,40 @@
+/* /src/components/FileBrowser/FileBrowser.css */
+.file-browser {
+  padding: 20px;
+}
+
+.workspace-list {
+  margin-top: 20px;
+}
+
+.workspace-form input,
+.workspace-form select {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.workspace-form h2 {
+  margin-bottom: 20px;
+}
+
+.file-browser ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.file-browser ul li {
+  border: 1px solid #ddd;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.right-align {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}

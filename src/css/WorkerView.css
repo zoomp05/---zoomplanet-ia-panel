@@ -1,0 +1,132 @@
+.worker-view {
+    padding: 24px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .worker-view-header {
+    margin-bottom: 32px;
+  }
+  
+  .worker-view-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .worker-view-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .worker-view-section {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .worker-view-section h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+  }
+  
+  .config-item {
+    margin-bottom: 16px;
+  }
+  
+  .config-item label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 8px;
+  }
+  
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+  }
+  
+  .tool-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .tool-checkbox:hover {
+    background: #f9fafb;
+  }
+  
+  .tool-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .save-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 12px 24px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+  }
+  
+  .save-bar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .save-bar-content span {
+    color: #f59e0b;
+    font-weight: 500;
+  }
+  
+  .save-bar-actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .save-bar-button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .save-bar-button.cancel {
+    background: #f3f4f6;
+    color: #374151;
+    border: none;
+  }
+  
+  .save-bar-button.cancel:hover {
+    background: #e5e7eb;
+  }
+  
+  .save-bar-button.save {
+    background: #2196f3;
+    color: white;
+    border: none;
+  }
+  
+  .save-bar-button.save:hover {
+    background: #1976d2;
+  }

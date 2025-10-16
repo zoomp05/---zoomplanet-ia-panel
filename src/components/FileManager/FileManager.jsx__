@@ -1,0 +1,87 @@
+import React, { useCallback, useEffect, useRef } from 'react';
+import { useFileManager } from './hooks/useFileManager';
+import DirectoryTree from './components/DirectoryTree';
+import FileList from './components/FileList';
+import Toolbar from './components/Toolbar';
+import LoadingOverlay from './components/LoadingOverlay';
+import './styles/FileManager.css';
+
+const FileManager = ({ workspaceId, projectId }) => {
+
+  const {
+    directoryTree,
+    currentDirectory,
+    loading,
+    error,
+    toggleDirectory,
+    expandedNodes,
+    selectedNodes,
+    onSelect,
+    onMultiSelect,
+    createDirectory,
+    deleteDirectory,
+    renameDirectory,
+    restoreDirectory,
+    isCreatingDirectory,
+    handleCreateDirectory,
+    handleCreateSubmit
+  } = useFileManager(workspaceId, projectId);
+
+  // Usar useRef para mantener la referencia al event listener
+  const handleOutsideClickRef = useRef(null);
+
+  // Definir el callback una sola vez
+  handleOutsideClickRef.current = useCallback((e) => {
+    if (!e.target.closest('.directory-tree') && !e.target.closest('.file-manager-toolbar')) {
+      onSelect(null);
+    }
+  }, [onSelect]);
+
+  // useEffect para manejar el evento de click
+  useEffect(() => {
+    const handler = (e) => handleOutsideClickRef.current(e);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+
+  }, []);
+
+  console.log('FileManager component rendered', workspaceId, projectId);
+
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div className="file-manager">
+      <LoadingOverlay isLoading={loading} />
+      <Toolbar 
+        currentDirectory={currentDirectory}
+        onCreateDirectory={handleCreateDirectory}
+      />
+      <div className="file-manager-content">
+        
+        <DirectoryTree
+          tree={directoryTree}
+          currentDirectory={currentDirectory}
+          expandedNodes={expandedNodes}
+          selectedNodes={selectedNodes}
+          onExpand={toggleDirectory}
+          onSelect={onSelect}
+          onMultiSelect={onMultiSelect}
+          onCreateDirectory={createDirectory}
+          onDelete={deleteDirectory}
+          onRename={renameDirectory}
+          onRestore={restoreDirectory}
+          creatingDirectory={isCreatingDirectory}
+          onCreateSubmit={handleCreateSubmit}
+        />
+        {/*
+        <FileList
+          files={currentDirectory?.files || []}
+          onDelete={deleteDirectory}
+          onRename={renameDirectory}
+        />*/}
+      </div>
+    </div>
+  );
+};
+
+export default FileManager;

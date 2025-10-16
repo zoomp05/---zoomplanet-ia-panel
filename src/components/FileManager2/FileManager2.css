@@ -1,0 +1,322 @@
+/* Estilos específicos para FileManager2 */
+
+/* Asegurar que los iconos de Lucide React se muestren correctamente */
+.file-manager2-container svg {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  overflow: visible !important;
+  width: 1em !important;
+  height: 1em !important;
+  line-height: 1 !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  fill: none !important;
+}
+
+/* Estilos específicos para los iconos de chevron (expandir/colapsar) */
+.file-manager2-container .chevron-icon {
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  z-index: 999 !important; /* Mayor z-index para asegurar que reciba los clics */
+  position: relative !important;
+  padding: 5px !important; /* Área más grande para hacer clic */
+}
+
+.file-manager2-container .chevron-icon:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-radius: 3px !important;
+}
+
+/* Aumentar el tamaño del hitbox para el clic */
+.file-manager2-container .chevron-icon svg {
+  pointer-events: none !important; /* Los eventos de clic pasan a través del svg al contenedor */
+}
+
+/* Estilos para contenedores de archivos y directorios */
+.file-manager2-container .file-item-container {
+  width: 100% !important;
+  position: relative !important;
+  display: block !important; /* Mostrar cada ítem en formato vertical */
+}
+
+.file-manager2-container .file-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 16px !important;
+}
+
+.file-manager2-container .file-name {
+  user-select: none !important;
+}
+
+.file-manager2-container .file-children {
+  position: relative !important;
+  display: block !important; /* Asegurarnos que los hijos se muestren en formato vertical */
+  width: 100% !important;
+}
+
+/* Garantizar que los iconos se vean correctos incluso con los estilos de antd */
+.file-manager2-container button svg,
+.file-manager2-contextmenu-item svg,
+.file-manager2-container .mr-1 svg,
+.file-manager2-container .mr-2 svg {
+  display: inline-block !important;
+  margin-right: 0.25rem !important;
+}
+
+/* Estilos específicos para los iconos de carpeta y archivo */
+.file-manager2-container .text-yellow-500 {
+  color: #f59e0b !important;
+}
+
+.file-manager2-container .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+/* Mejorar estilos para el menú contextual */
+.file-manager2-contextmenu {
+  position: fixed !important;
+  z-index: 1000 !important;
+  background-color: white !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.25rem !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  min-width: 160px !important;
+  padding: 0.5rem 0 !important;
+}
+
+.file-manager2-contextmenu-item {
+  padding: 0.5rem 1rem !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: background-color 0.2s !important;
+  color: #333 !important;
+  user-select: none !important;
+}
+
+.file-manager2-contextmenu-item:hover {
+  background-color: #f7fafc !important;
+}
+
+.file-manager2-contextmenu-item svg {
+  margin-right: 0.5rem !important;
+}
+
+/* Estilos para elementos seleccionados y durante el arrastre */
+.file-item-selected {
+  background-color: #e0e7ff; /* Azul claro para selección */
+  border-radius: 0.25rem !important;
+}
+
+.file-item-dragging {
+  opacity: 0.5 !important;
+}
+
+.file-item-drop-target {
+  background-color: #cceeff; /* Un azul más claro para indicar destino de drop en item */
+  outline: 1px dashed #007bff;
+  z-index: 10;
+  position: relative;
+}
+
+/* Mejorar el área de contenido */
+.file-manager2-container .file-manager-content {
+  min-height: 200px !important;
+  max-height: 400px !important;
+  overflow-y: auto !important;
+  padding: 0.5rem !important;
+  display: block !important; /* Formato vertical */
+}
+
+/* Estilos para los diálogos modales */
+.file-manager2-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 100 !important;
+}
+
+.file-manager2-modal {
+  background-color: white !important;
+  border-radius: 0.375rem !important;
+  padding: 1.5rem !important;
+  width: 100% !important;
+  max-width: 28rem !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.file-manager2-modal-title {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 1rem !important;
+}
+
+.file-manager2-modal-content {
+  margin-bottom: 1.5rem !important;
+}
+
+.file-manager2-modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.5rem !important;
+}
+
+/* Estilo para forzar que los textos y contenedores se muestren correctamente */
+.file-manager2-container .flex {
+  display: flex !important;
+}
+
+.file-manager2-container .items-center {
+  align-items: center !important;
+}
+
+.file-manager2-container .justify-between {
+  justify-content: space-between !important;
+}
+
+.file-manager2-container .space-x-2 > * + * {
+  margin-left: 0.5rem !important;
+}
+
+.file-manager2-container .text-xs {
+  font-size: 0.75rem !important;
+}
+
+.file-manager2-container .text-sm {
+  font-size: 0.875rem !important;
+}
+
+.file-manager2-container .font-medium {
+  font-weight: 500 !important;
+}
+
+.file-manager2-container .font-semibold {
+  font-weight: 600 !important;
+}
+
+.file-manager2-container .cursor-pointer {
+  cursor: pointer !important;
+}
+
+.file-manager2-container .truncate {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.file-manager2-container .flex-1 {
+  flex: 1 1 0% !important;
+}
+
+.file-manager2-container .rounded {
+  border-radius: 0.25rem !important;
+}
+
+.file-manager2-container .hover\:bg-gray-100:hover {
+  background-color: #f3f4f6 !important;
+}
+
+.file-manager2-container .hover\:bg-gray-200:hover {
+  background-color: #e5e7eb !important;
+}
+
+.file-manager2-container .text-red-500 {
+  color: #ef4444 !important;
+}
+
+.file-manager2-container .bg-blue-500 {
+  background-color: #3b82f6 !important;
+}
+
+.file-manager2-container .text-white {
+  color: white !important;
+}
+
+.file-manager2-container .hover\:bg-blue-600:hover {
+  background-color: #2563eb !important;
+}
+
+/* Estilos adicionales para el botón de pegar en la raíz */
+.file-manager2-container button.p-1 {
+  padding: 0.25rem !important;
+}
+
+.file-manager2-container .border-t {
+  border-top-width: 1px !important;
+  border-top-style: solid !important;
+  border-top-color: #e5e7eb !important;
+}
+
+.file-manager2-container .border-b {
+  border-bottom-width: 1px !important;
+  border-bottom-style: solid !important;
+  border-bottom-color: #e5e7eb !important;
+}
+
+.file-manager2-container .my-1 {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.file-manager2-container .mr-1 {
+  margin-right: 0.25rem !important;
+}
+
+.file-manager2-container .mr-2 {
+  margin-right: 0.5rem !important;
+}
+
+.file-manager2-container .mt-1 {
+  margin-top: 0.25rem !important;
+}
+
+.file-manager2-container .mb-4 {
+  margin-bottom: 1rem !important;
+}
+
+/* Input para el diálogo de crear nuevo elemento */
+.file-manager2-modal-content input {
+  width: 100% !important;
+  padding: 0.5rem !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.875rem !important;
+}
+
+/* Añadir una transición suave para el efecto de highlight */
+.file-item-row {
+  transition: background-color 0.15s ease, outline 0.15s ease;
+}
+
+/* Estilo para elementos cortados */
+.file-item-row.opacity-50 {
+  opacity: 0.5;
+}
+
+/* Nuevo estilo para el área raíz como destino de drop */
+.file-manager-content.file-manager-root-drop-target {
+  background-color: #f0f0f0; /* Un gris muy claro */
+  border: 2px dashed #a0a0a0; /* Borde discontinuo para indicar área de drop */
+  box-sizing: border-box; /* Para que el borde no aumente el tamaño */
+}
+
+.chevron-icon-wrapper {
+  /* ... tus estilos existentes ... */
+  /* border: 1px dashed green; */ /* Comentado o eliminado si ya no es necesario para depuración */
+  /* padding: 5px; */
+  /* z-index: 1002; */
+}

@@ -1,0 +1,31 @@
+.compact-widget-container {
+  position: relative;
+  display: inline-block;
+  min-height: 100%;
+}
+
+.compact-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: width 0.2s ease;
+}
+
+.compact-widget-content {
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+/* Reutilizar estilos del header de CompactItemList */
+.compact-header {
+  /* ...existing styles from CompactItemList.css... */
+}
+
+/* Otros estilos necesarios */
+.button-plus {
+  /* ...existing styles from CompactItemList.css... */
+}

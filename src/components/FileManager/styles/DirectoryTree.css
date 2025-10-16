@@ -1,0 +1,79 @@
+.directory-tree-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+
+  .directory-tree-container .route-loading, div[class*="loading"] { 
+    height: 100% !important;
+    overflow-y: auto;
+  }
+  /* Overlay flotante que cubre toda el área del árbol */
+  .directory-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.5); /* Fondo semitransparente */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100; /* Asegura que esté por encima del resto del contenido */
+    pointer-events: all; /* Captura todos los eventos de clic para bloquear interacción */
+    backdrop-filter: blur(1px); /* Efecto de desenfoque sutil (funciona en navegadores modernos) */
+  }
+  
+  .directory-loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /*background-color: #fff;*/
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .directory-loading-spinner {
+    animation: spin 1s linear infinite;
+    margin-bottom: 8px;
+    color: #1677ff; /* Color primario de Ant Design */
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Estilos existentes de DirectoryTree pueden seguir aquí */
+  .directory-tree {
+    padding: 8px;
+    overflow-y: auto;
+    height: 100%;
+  }
+  
+  .directory-empty {
+    color: #999;
+    padding: 12px 8px;
+    text-align: center;
+    font-style: italic;
+  }
+  
+  /* Asegúrate de que los íconos en la carga respeten el tema general */
+  .directory-loading-content span {
+    font-size: 14px;
+    color: #666;
+    
+  }
+
+  .directory-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+  }
+  
+  /* Hacer que la barra de progreso sea más delgada */
+  .directory-progress-bar .ant-progress-bg {
+    height: 2px !important;
+  }

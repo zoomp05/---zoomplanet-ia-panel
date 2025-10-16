@@ -1,0 +1,13 @@
+.project-config {
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Move relevant styles from ProjectView.css */
+.project-view-header {
+  /* ...existing styles... */
+}
+
+/* ...rest of the project configuration specific styles... */

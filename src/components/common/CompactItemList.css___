@@ -1,0 +1,44 @@
+.compact-item-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
+
+.compact-item {
+  aspect-ratio: 1;
+  background: #f5f5f5;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  transition: all 0.2s ease;
+}
+
+.compact-item:hover {
+  background: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+.compact-item.selected {
+  background: #1890ff;
+  color: white;
+}
+
+.compact-item-initials {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.compact-item-title {
+  font-size: 0.8em;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}

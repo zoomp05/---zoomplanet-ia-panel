@@ -1,0 +1,133 @@
+import { useLocation, useNavigate } from 'react-router';
+import { useMemo } from 'react';
+
+/**
+ * Hook para navegación contextual dentro de módulos
+ * Mantiene la jerarquía establecida y construye URLs respetando el contexto actual
+ */
+export const useModuleNavigation = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Extraer información del contexto actual de la ruta
+  const routeContext = useMemo(() => {
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    
+    return {
+      site: pathParts[0] || '',
+      module: pathParts[1] || '',
+      submodule: pathParts[2] || '',
+      basePath: pathParts.length > 0 ? `/${pathParts[0]}` : '',
+      modulePath: pathParts.length > 1 ? `/${pathParts[0]}/${pathParts[1]}` : '',
+      fullContext: pathParts.length > 2 ? `/${pathParts.slice(0, 3).join('/')}` : '',
+      isInModule: pathParts.length >= 2,
+      isInSubmodule: pathParts.length >= 3,
+    };
+  }, [location.pathname]);
+
+  /**
+   * Construye una URL contextual manteniendo la jerarquía
+   * @param {string} path - Ruta relativa dentro del contexto actual
+   * @param {string} scope - Alcance: 'module', 'submodule', 'site', 'absolute'
+   * @returns {string} URL contextual completa
+   */
+  const buildContextualUrl = (path, scope = 'auto') => {
+    console.log(`[ModuleNavigation] Construyendo URL contextual: "${path}" con scope: "${scope}"`);
+    console.log(`[ModuleNavigation] Contexto actual:`, routeContext);
+    
+    // Si la URL ya es absoluta, devolverla tal como está
+    if (path.startsWith('http') || path.startsWith('//')) {
+      return path;
+    }
+
+    // Determinar el prefijo según el scope
+    let prefix = '';
+    
+    switch (scope) {
+      case 'site':
+        prefix = routeContext.basePath;
+        break;
+      case 'module':
+        prefix = routeContext.modulePath;
+        break;
+      case 'submodule':
+        prefix = routeContext.fullContext;
+        break;
+      case 'absolute':
+        prefix = '';
+        break;
+      case 'auto':
+      default:
+        // Auto-detectar el scope basado en el contexto actual
+        if (routeContext.isInSubmodule) {
+          // Si estamos dentro de un submódulo, usar el contexto del submódulo
+          prefix = routeContext.fullContext;
+        } else if (routeContext.isInModule) {
+          // Si estamos dentro de un módulo, usar el contexto del módulo
+          prefix = routeContext.modulePath;
+        } else {
+          // Si estamos solo en el sitio, usar el contexto del sitio
+          prefix = routeContext.basePath;
+        }
+        break;
+    }
+
+    // Construir la URL final
+    const normalizedUrl = path.startsWith('/') 
+      ? `${prefix}${path}` 
+      : `${prefix}/${path}`;
+
+    // Limpiar dobles barras
+    const finalUrl = normalizedUrl.replace(/\/+/g, '/');
+    
+    console.log(`[ModuleNavigation] URL final: "${finalUrl}"`);
+    return finalUrl;
+  };
+
+  /**
+   * Navega manteniendo el contexto actual
+   * @param {string} path - Ruta relativa
+   * @param {string} scope - Alcance de navegación
+   * @param {object} options - Opciones adicionales para navigate
+   */
+  const navigateContextual = (path, scope = 'auto', options = {}) => {
+    const contextualUrl = buildContextualUrl(path, scope);
+    console.log(`[ModuleNavigation] Navegando a: "${contextualUrl}"`);
+    navigate(contextualUrl, options);
+  };
+
+  /**
+   * Genera un link que respeta la jerarquía actual
+   * Útil para componentes Link o anchor tags
+   * @param {string} path - Ruta relativa
+   * @param {string} scope - Alcance del enlace
+   * @returns {string} URL contextual para href
+   */
+  const getContextualLink = (path, scope = 'auto') => {
+    return buildContextualUrl(path, scope);
+  };
+
+  /**
+   * Verifica si una ruta está activa en el contexto actual
+   * @param {string} path - Ruta a verificar
+   * @param {boolean} exact - Si debe ser una coincidencia exacta
+   * @returns {boolean} True si la ruta está activa
+   */
+  const isActive = (path, exact = false) => {
+    const contextualUrl = buildContextualUrl(path);
+    return exact 
+      ? location.pathname === contextualUrl
+      : location.pathname.startsWith(contextualUrl);
+  };
+
+  return {
+    routeContext,
+    buildContextualUrl,
+    navigateContextual,
+    getContextualLink,
+    isActive,
+    // Aliases para compatibilidad
+    navigate: navigateContextual,
+    buildUrl: buildContextualUrl,
+  };
+};

@@ -1,0 +1,172 @@
+import { useLocation } from 'react-router';
+import { useMemo } from 'react';
+
+/**
+ * Hook para normalizar rutas del menú según el contexto actual
+ */
+export const useMenuNormalizer = () => {
+  const location = useLocation();
+  
+  // Extraer información del contexto actual de la ruta
+  const routeContext = useMemo(() => {
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    
+    return {
+      site: pathParts[0] || '',
+      module: pathParts[1] || '',
+      submodule: pathParts[2] || '',
+      basePath: pathParts.length > 0 ? `/${pathParts[0]}` : '',
+      modulePath: pathParts.length > 1 ? `/${pathParts[0]}/${pathParts[1]}` : '',
+      fullContext: pathParts.length > 2 ? `/${pathParts.slice(0, 3).join('/')}` : '',
+    };
+  }, [location.pathname]);
+
+  /**
+   * Normaliza una URL según el contexto actual
+   * @param {string} url - URL a normalizar
+   * @param {string} scope - Alcance de la normalización ('site', 'module', 'submodule', 'absolute')
+   */
+  const normalizeUrl = (url, scope = 'auto') => {
+    console.log(`[MenuNormalizer] Normalizando URL: "${url}" con scope: "${scope}"`);
+    console.log(`[MenuNormalizer] Contexto actual:`, routeContext);
+    
+    // Si la URL ya es absoluta (empieza con http o tiene múltiples /), devolverla tal como está
+    if (url.startsWith('http') || url.startsWith('//')) {
+      return url;
+    }
+
+    // Si empieza con /, es una ruta absoluta dentro de la app
+    if (url.startsWith('/')) {
+      // Si scope es 'absolute', mantener tal como está
+      if (scope === 'absolute') {
+        return url;
+      }
+      // Si no, agregar el contexto apropiado
+    }
+
+    // Determinar el prefijo según el scope
+    let prefix = '';
+    
+    switch (scope) {
+      case 'site':
+        prefix = routeContext.basePath;
+        break;
+      case 'module':
+        prefix = routeContext.modulePath;
+        break;
+      case 'submodule':
+        prefix = routeContext.fullContext;
+        break;
+      case 'absolute':
+        prefix = '';
+        break;
+      case 'auto':
+      default:
+        // Auto-detectar el scope basado en el contexto actual
+        if (routeContext.module) {
+          // Si estamos dentro de un módulo, usar el contexto del módulo
+          prefix = routeContext.modulePath;
+        } else {
+          // Si estamos solo en el sitio, usar el contexto del sitio
+          prefix = routeContext.basePath;
+        }
+        break;
+    }
+
+    // Construir la URL final
+    const normalizedUrl = url.startsWith('/') 
+      ? `${prefix}${url}` 
+      : `${prefix}/${url}`;
+
+    // Limpiar dobles barras
+    const finalUrl = normalizedUrl.replace(/\/+/g, '/');
+    
+    console.log(`[MenuNormalizer] URL final: "${finalUrl}"`);
+    return finalUrl;
+  };
+
+  /**
+   * Valida y limpia un item de menú para asegurar que todas las propiedades sean strings
+   * @param {Object} item - Item del menú
+   */
+  const validateMenuItem = (item) => {
+    if (!item || typeof item !== 'object') {
+      return null;
+    }
+
+    const validatedItem = {};
+
+    // Validar y convertir propiedades básicas a string
+    if (item.key !== undefined) {
+      validatedItem.key = String(item.key);
+    }
+    if (item.label !== undefined) {
+      validatedItem.label = String(item.label);
+    }
+    if (item.url !== undefined) {
+      validatedItem.url = String(item.url);
+    }
+    if (item.type !== undefined) {
+      validatedItem.type = String(item.type);
+    }
+    if (item.scope !== undefined) {
+      validatedItem.scope = String(item.scope);
+    }
+
+    // Mantener el icono si existe (React element)
+    if (item.icon) {
+      validatedItem.icon = item.icon;
+    }
+
+    // Validar children recursivamente
+    if (item.children && Array.isArray(item.children)) {
+      const validatedChildren = item.children
+        .map(child => validateMenuItem(child))
+        .filter(Boolean); // Filtrar items null
+      
+      if (validatedChildren.length > 0) {
+        validatedItem.children = validatedChildren;
+      }
+    }
+
+    return validatedItem;
+  };
+
+  /**
+   * Normaliza un array de items de menú
+   * @param {Array} items - Items del menú
+   * @param {string} defaultScope - Scope por defecto para todos los items
+   */
+  const normalizeMenuItems = (items, defaultScope = 'auto') => {
+    if (!Array.isArray(items)) {
+      console.warn('[MenuNormalizer] Items debe ser un array:', items);
+      return [];
+    }
+
+    return items
+      .map(item => validateMenuItem(item)) // Validar primero
+      .filter(Boolean) // Filtrar items null
+      .map(item => {
+        const normalizedItem = { ...item };
+        
+        // Normalizar la URL del item si existe
+        if (item.url) {
+          const itemScope = item.scope || defaultScope;
+          normalizedItem.url = normalizeUrl(item.url, itemScope);
+        }
+        
+        // Normalizar children recursivamente
+        if (item.children && Array.isArray(item.children)) {
+          normalizedItem.children = normalizeMenuItems(item.children, defaultScope);
+        }
+        
+        return normalizedItem;
+      });
+  };
+
+  return {
+    routeContext,
+    normalizeUrl,
+    normalizeMenuItems,
+  };
+};

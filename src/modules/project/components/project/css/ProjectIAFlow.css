@@ -1,0 +1,222 @@
+.project-view {
+  overflow: hidden;
+  padding: 20px;
+}
+
+.project-panels {
+  display: grid;
+  grid-template-columns: 300px 1fr 1fr;
+  gap: 20px;
+  height: calc(100vh - 100px);
+  overflow: hidden;
+}
+
+/* Panel de detalles del proyecto */
+.project-details-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+/* Panel de tareas */
+.tasks-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+/* Panel de threads */
+.threads-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.no-task-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Estilos heredados mejorados */
+.project-view-header {
+  margin-bottom: 24px;
+}
+
+.project-view-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.project-view-type {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 12px;
+  background: #f3f4f6;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.project-view-type:hover {
+  background: #e5e7eb;
+}
+
+.project-view-section {
+  margin-bottom: 24px;
+}
+
+.project-view-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+/* Workspaces */
+.workspaces-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.workspace-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.workspace-card h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.workspace-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 38px;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.workspace-placeholder {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.workspace-add-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: #e5e7eb;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.workspace-add-button:hover {
+  background: #d1d5db;
+}
+
+/* Save bar */
+.save-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 24px;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.save-bar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.save-bar-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.save-bar-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-bar-button.cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.save-bar-button.cancel:hover {
+  background: #e5e7eb;
+}
+
+.save-bar-button.save {
+  background: #2196f3;
+  color: white;
+}
+
+.save-bar-button.save:hover {
+  background: #1976d2;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .project-panels {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .project-details-panel {
+    grid-column: 1 / -1;
+    height: auto;
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .project-panels {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr 1fr;
+  }
+}
+
+/* Switch styles */
+.view-toggle {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.view-toggle .ant-switch {
+  margin-left: auto;
+}

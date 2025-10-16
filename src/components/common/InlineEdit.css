@@ -1,0 +1,91 @@
+/* components/common/InlineEdit/InlineEdit.css */
+.inline-edit {
+  position: relative;
+  width: 100%;
+}
+
+.inline-edit-display {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  /*background-color: #f8f9fa;*/
+}
+
+.inline-edit-display:hover {
+  background-color: #f0f0f0;
+  border-color: #ddd;
+}
+
+.inline-edit-display.modified {
+  background-color: rgba(243, 156, 18, 0.1);
+  border-color: #f39c12;
+}
+
+.inline-edit-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: inherit;
+  font-family: inherit;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.inline-edit-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.inline-edit-input.modified {
+  border-color: #f39c12;
+}
+
+.inline-edit-input.textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.inline-edit-input.select {
+  appearance: none;
+  padding-right: 24px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg fill='none' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M7 7l3 3 3-3' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 8px center;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+}
+
+.inline-edit-input.password {
+  letter-spacing: 0.25em;
+}
+
+/* Estilos para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .inline-edit-display {
+    background-color: #2d2d2d;
+    color: #fff;
+  }
+
+  .inline-edit-display:hover {
+    background-color: #363636;
+    border-color: #4d4d4d;
+  }
+
+  .inline-edit-input {
+    background-color: #2d2d2d;
+    border-color: #4d4d4d;
+    color: #fff;
+  }
+
+  .inline-edit-input:focus {
+    border-color: #5a9de2;
+    box-shadow: 0 0 0 2px rgba(90, 157, 226, 0.2);
+  }
+}

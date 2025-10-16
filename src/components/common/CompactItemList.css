@@ -1,0 +1,270 @@
+.compact-list-container {
+  position: relative;
+  display: inline-block;
+  min-height: 100%;
+}
+
+.compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: width 0.2s ease;
+  width: 40px;
+}
+
+.compact-list.expanded {
+  width: 300px;
+}
+
+/* Ocultamos contenido y drag handle si no está expandido */
+.compact-list:not(.expanded) .task-item-right,
+.compact-list:not(.expanded) .task-item-text,
+.compact-list:not(.expanded) .task-drag-handle {
+  display: none;
+}
+
+.task-item {
+  display: flex;
+  border: none;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.task-item:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.task-item.selected {
+  background-color: #e6f4ff;
+}
+
+.task-item.draft {
+  background-color: #fafafa;
+  border: 1px dashed #d9d9d9;
+}
+
+.task-item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  cursor: pointer;
+  min-width: 0;
+  user-select: none;
+}
+
+.task-item-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.task-item-text {
+  height: 22px;
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 4px 6px;
+  margin: -4px 0;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  flex: 1;
+  cursor: text; /* Cambiar a text siempre para indicar que es editable */
+  pointer-events: all;
+}
+
+.task-item-text:hover {
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
+.task-item.selected .task-item-text {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.task-item.selected .task-item-text:hover {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.task-item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 0 4px;
+  border-radius: 4px;
+  cursor: default; /* Cambiado de pointer a default */
+  pointer-events: all;
+}
+
+.task-item-input {
+  height: 26px;
+  width: 100%;
+  padding: 2px 4px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  min-width: 0;
+  flex: 1;
+}
+
+.task-item-input:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.task-item-chat {
+  padding: 4px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.task-item:hover .task-item-chat {
+  opacity: 1;
+}
+
+.task-item-chat:hover {
+  background: rgba(0,0,0,0.05);
+  color: #333;
+}
+
+.compact-header {
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 8px;
+}
+
+.header-expanded {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.header-button, .header-button-collapsed {
+  padding: 4px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.header-button:hover, .header-button-collapsed:hover {
+  background: rgba(0,0,0,0.05);
+  color: #333;
+}
+
+.task-drag-handle {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  cursor: grab;
+  color: #9ca3af;
+}
+
+.drag-icon {
+  font-size: 14px;
+  line-height: 1;
+  user-select: none;
+}
+.compact-list .ant-btn-icon svg {
+  width: 20px;
+  height: 20px;
+}
+.compact-list .ant-btn {
+  border: none;
+}
+
+.button:focus, button:focus-visible {
+  outline: none !important; 
+}
+
+.shadow-lg svg {
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
+  --tw-shadow: 0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color);
+}
+
+.task-item-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-item-metadata {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.thread-metadata {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.thread-messages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.thread-worker {
+  background: #f3f4f6;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+/* ...existing styles... */
+
+.task-item-subtitle {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ...existing code... */
+.compact-header button:focus,
+.compact-header .ant-btn:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}

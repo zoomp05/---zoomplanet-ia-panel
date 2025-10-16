@@ -1,0 +1,109 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #333;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+  }
+  
+  .close-button:hover {
+    color: #333;
+  }
+  
+  .modal-form {
+    padding: 1.5rem;
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  
+
+
+  /*
+
+
+
+  */
+
+  /* Agregar a WorkspaceModal.css */
+.modal-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* Estilos para modo edición */
+.modal-content.edit-mode .modal-header {
+  background-color: #f8f9fa;
+}
+
+.modal-content.edit-mode .submit-button {
+  background-color: #28a745;
+}
+
+.modal-content.edit-mode .submit-button:hover {
+  background-color: #218838;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .modal-loading {
+    color: #999;
+  }
+
+  .modal-content.edit-mode .modal-header {
+    background-color: #2d2d2d;
+  }
+
+  .modal-content.edit-mode .submit-button {
+    background-color: #2ea043;
+  }
+
+  .modal-content.edit-mode .submit-button:hover {
+    background-color: #238636;
+  }
+}
