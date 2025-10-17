@@ -13,6 +13,7 @@
 import ModuleDependencyResolver from './ModuleDependencyResolver.js';
 import SessionManager from '../session/SessionManager.js';
 import configManager from '../config/ConfigManager.js';
+import { loadModuleConfig } from '../config/configLoader.js';
 
 /**
  * Estados del ciclo de vida de un módulo
@@ -200,43 +201,78 @@ export class ModuleInitializer {
     this.emit('module:initializing', { instanceId, config: moduleConfig });
 
     try {
-      // 1. Cargar configuración dinámica del módulo desde DB
+      // 1. Determinar el nombre del módulo y su jerarquía
+      const moduleName = moduleConfig.module || moduleConfig.name || instanceId;
+      const parentModule = this.getParentModule(instanceId);
+      
+      console.log(`[ModuleInitializer] Cargando config en cascada para ${moduleName}`, {
+        parent: parentModule,
+        site: this.siteId
+      });
+
+      // 2. Cargar configuración usando ConfigLoader (cascada de 3 niveles)
+      let cascadeConfig = null;
+      try {
+        cascadeConfig = await loadModuleConfig(moduleName, parentModule, this.siteId, {
+          silent: true, // No fallar si no hay configs opcionales
+          throwOnMissing: false
+        });
+      } catch (error) {
+        console.warn(`[ModuleInitializer] Config en cascada no disponible para ${moduleName}, usando config del site`);
+      }
+
+      // 3. Cargar configuración dinámica desde DB (si existe)
       const dynamicModuleConfig = await this.configManager.loadModuleConfig(
         this.siteId,
         instanceId
       );
 
-      // Merge de configuración
-      const finalConfig = { ...moduleConfig, ...dynamicModuleConfig };
+      // 4. Merge de todas las configuraciones en orden de prioridad:
+      //    base → parent override → site override → DB config → moduleConfig (runtime)
+      const finalConfig = {
+        ...(cascadeConfig || {}), // Config en cascada (ya viene merged)
+        ...dynamicModuleConfig,    // Config de DB
+        ...moduleConfig            // Config runtime (tiene máxima prioridad)
+      };
+      
+      // Preservar metadata si existe
+      if (cascadeConfig && cascadeConfig._meta) {
+        finalConfig._meta = cascadeConfig._meta;
+      }
 
-      // 2. Cargar código del módulo
-      const moduleName = moduleConfig.module || moduleConfig.name;
+      console.log(`[ModuleInitializer] Config final para ${instanceId}:`, {
+        hasCascadeConfig: !!cascadeConfig,
+        hasDynamicConfig: Object.keys(dynamicModuleConfig).length > 0,
+        hasMetadata: !!finalConfig._meta
+      });
+
+      // 5. Cargar código del módulo
       const ModuleClass = await this.loadModuleCode(moduleName, moduleConfig.version);
 
-      // 3. Crear contexto para el módulo
+      // 6. Crear contexto para el módulo
       const context = this.createModuleContext(instanceId, finalConfig);
 
-      // 4. Crear instancia del módulo
+      // 7. Crear instancia del módulo
       const instance = new ModuleClass(finalConfig, context);
 
-      // 5. Ejecutar hooks onBeforeInit
+      // 8. Ejecutar hooks onBeforeInit
       await this.executeHooks(instanceId, 'onBeforeInit', { config: finalConfig, context });
 
-      // 6. Llamar al método init del módulo si existe
+      // 9. Llamar al método init del módulo si existe
       if (typeof instance.init === 'function') {
         await instance.init();
       }
 
-      // 7. Llamar al método install del módulo para registrar rutas
+      // 10. Llamar al método install del módulo para registrar rutas
       if (typeof instance.install === 'function') {
         const routingConfig = finalConfig.routing || {};
-        const { parentModule = null, inheritLayouts = {} } = routingConfig;
+        const { parentModule: routingParent = parentModule, inheritLayouts = {} } = routingConfig;
         
         console.log(`[ModuleInitializer] Registrando rutas de ${instanceId}...`);
-        await instance.install(this.siteId, parentModule, inheritLayouts);
+        await instance.install(this.siteId, routingParent, inheritLayouts);
       }
 
-      // 8. Ejecutar hooks onAfterInit
+      // 11. Ejecutar hooks onAfterInit
       await this.executeHooks(instanceId, 'onAfterInit', { instance, config: finalConfig, context });
 
       // Guardar módulo inicializado
@@ -652,6 +688,39 @@ export class ModuleInitializer {
    */
   getModuleConfig(instanceId) {
     return this.siteConfig.modules.find(m => m.instanceId === instanceId);
+  }
+
+  /**
+   * Obtiene el módulo padre de un módulo dado
+   * Busca en la jerarquía definida en la configuración
+   */
+  getParentModule(instanceId) {
+    const moduleConfig = this.getModuleConfig(instanceId);
+    if (!moduleConfig) return null;
+    
+    // 1. Si el módulo tiene explícitamente definido su parent en routing
+    if (moduleConfig.routing && moduleConfig.routing.parentModule) {
+      return moduleConfig.routing.parentModule;
+    }
+    
+    // 2. Buscar en la jerarquía inversa: ¿quién define este módulo en sus submodules?
+    // Por ejemplo, si 'admin' define 'googleAds' en su modules array, entonces admin es el padre
+    for (const potentialParent of this.siteConfig.modules) {
+      const parentInstanceId = potentialParent.instanceId;
+      const parentName = potentialParent.module || potentialParent.name;
+      
+      // Verificar si este potencial padre tiene un array de modules/submodules
+      if (potentialParent.modules && Array.isArray(potentialParent.modules)) {
+        const moduleName = moduleConfig.module || moduleConfig.name || instanceId;
+        if (potentialParent.modules.includes(moduleName)) {
+          console.log(`[ModuleInitializer] Padre encontrado: ${parentName} → ${moduleName}`);
+          return parentName;
+        }
+      }
+    }
+    
+    // 3. Si no se encuentra padre, es un módulo raíz
+    return null;
   }
 
   /**
