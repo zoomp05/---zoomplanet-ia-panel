@@ -46,6 +46,7 @@ import {
 } from '@ant-design/icons';
 import { policyProcessor } from '../../../zoom/security/policyProcessor.js';
 import { loadModuleConfig, getConfigInfo, loadAllModuleConfigs } from '../../../zoom/config/configLoader.js';
+import { useModuleRouteBuilder } from '../../../zoom/hooks/useModuleRouteBuilder.js';
 
 const { Title, Text, Paragraph } = Typography;
 const { Panel } = Collapse;
@@ -69,6 +70,9 @@ const SiteConfigurationPage = ({ siteConfig: propSiteConfig, siteId: propSiteId 
   // Estados para información adicional del módulo seleccionado
   const [moduleInfo, setModuleInfo] = useState(null);
   const [moduleRoutes, setModuleRoutes] = useState(null);
+
+  // Hook para construcción de rutas de módulos
+  const { buildModuleBasePath, buildFullPath, getModuleRouteContext } = useModuleRouteBuilder(siteConfig);
 
   useEffect(() => {
     // Si se pasa siteConfig como prop, usarlo
@@ -136,49 +140,76 @@ const SiteConfigurationPage = ({ siteConfig: propSiteConfig, siteId: propSiteId 
   /**
    * Construir árbol jerárquico de módulos con submódulos incorporados
    */
-  const buildModuleTree = (modules) => {
+  const buildModuleTree = async (modules) => {
     const rootModules = modules.filter(m => !m.routing?.parentModule);
     
     const buildNode = async (module) => {
       const children = modules.filter(m => m.routing?.parentModule === module.module);
       
-      // Cargar información del módulo para obtener submódulos incorporados
+      // Cargar configuración del módulo usando ConfigLoader para obtener submódulos
       let incorporatedModules = [];
+      let moduleConfig = null;
+      
       try {
-        const moduleInfo = await import(`../../../modules/${module.module}/index.js`);
-        if (moduleInfo.default?.modules) {
-          incorporatedModules = moduleInfo.default.modules;
+        // Primero intentar cargar config con ConfigLoader
+        const moduleName = module.module || module.name;
+        moduleConfig = await loadModuleConfig(moduleName, null, siteId, {
+          silent: true,
+          throwOnMissing: false
+        });
+        
+        // Si la config tiene submodules definidos, usarlos
+        if (moduleConfig && moduleConfig.submodules) {
+          incorporatedModules = moduleConfig.submodules;
+          console.log(`📦 Submódulos encontrados en config de ${moduleName}:`, incorporatedModules);
         }
       } catch (error) {
-        // No hay submódulos incorporados
+        console.warn(`⚠️ No se pudo cargar config de ${module.module}:`, error);
+      }
+      
+      // Si no hay submodules en config, intentar cargar desde index.js (legacy)
+      if (incorporatedModules.length === 0) {
+        try {
+          const moduleInfo = await import(`../../../modules/${module.module}/index.js`);
+          if (moduleInfo.default?.modules) {
+            incorporatedModules = moduleInfo.default.modules;
+            console.log(`📦 Submódulos encontrados en index.js de ${module.module}:`, incorporatedModules);
+          }
+        } catch (error) {
+          // No hay submódulos incorporados
+        }
       }
 
       // Crear nodos hijos: primero los del site.config, luego los incorporados
-      const allChildren = [
-        ...children.map(buildNode),
-        ...incorporatedModules.map(subModName => ({
-          title: (
-            <Space>
-              <Tag color="cyan" style={{ fontSize: '10px' }}>
-                Incorporado
-              </Tag>
-              <strong>{subModName}</strong>
-              <Text type="secondary" style={{ fontSize: '11px' }}>
-                (interno de {module.module})
-              </Text>
-            </Space>
-          ),
-          key: `${module.id}-incorporated-${subModName}`,
-          icon: <AppstoreOutlined style={{ color: '#13c2c2' }} />,
-          data: {
-            ...module,
-            id: `${module.id}-incorporated-${subModName}`,
-            module: subModName,
-            isIncorporated: true,
-            parentModuleName: module.module
-          }
-        }))
-      ];
+      const childNodes = await Promise.all(children.map(buildNode));
+      
+      const incorporatedNodes = incorporatedModules.map(subModName => ({
+        title: (
+          <Space>
+            <Tag color="cyan" style={{ fontSize: '10px' }}>
+              Submódulo
+            </Tag>
+            <strong>{subModName}</strong>
+            <Text type="secondary" style={{ fontSize: '11px' }}>
+              (de {module.module})
+            </Text>
+          </Space>
+        ),
+        key: `${module.id}-incorporated-${subModName}`,
+        icon: <AppstoreOutlined style={{ color: '#13c2c2' }} />,
+        data: {
+          // NO copiar todo el módulo padre, solo lo necesario
+          id: `${module.id}-incorporated-${subModName}`,
+          module: subModName,
+          name: subModName,
+          isIncorporated: true,
+          parentModuleName: module.module,
+          // NO incluir routing del padre, el submódulo tiene su propia ruta
+          config: moduleConfig // Guardar config para visualización
+        }
+      }));
+      
+      const allChildren = [...childNodes, ...incorporatedNodes];
       
       return {
         title: (
@@ -261,13 +292,15 @@ const SiteConfigurationPage = ({ siteConfig: propSiteConfig, siteId: propSiteId 
     if (!routes || !Array.isArray(routes)) return null;
 
     return routes.map((route, idx) => {
-      const fullPath = basePath + (route.path ? `/${route.path}` : '');
+      // Usar buildFullPath del hook para construir la ruta completa
+      const fullPath = buildFullPath(basePath, route.path);
+      
       const indent = '  '.repeat(level);
       
       return (
         <div key={idx} style={{ marginLeft: level * 20 }}>
           <Space>
-            <Text code>{fullPath || '/'}</Text>
+            <Text code>{fullPath}</Text>
             {route.componentPath && (
               <Tag color="blue" style={{ fontSize: '11px' }}>
                 {route.componentPath.split('/').pop()}
@@ -300,26 +333,7 @@ const SiteConfigurationPage = ({ siteConfig: propSiteConfig, siteId: propSiteId 
       );
     }
 
-    // Construir ruta base considerando la jerarquía completa de parent modules
-    const buildModuleBasePath = (module) => {
-      let basePath = `/${siteConfig.siteId}`;
-      
-      // Si tiene parent module, buscar su routePrefix
-      if (module.routing?.parentModule) {
-        const parentModule = siteConfig.modules.find(m => m.module === module.routing.parentModule);
-        if (parentModule?.routing?.routePrefix) {
-          basePath += `/${parentModule.routing.routePrefix}`;
-        }
-      }
-      
-      // Agregar el routePrefix del módulo actual
-      if (module.routing?.routePrefix) {
-        basePath += `/${module.routing.routePrefix}`;
-      }
-      
-      return basePath;
-    };
-
+    // Usar el hook para construir la ruta base del módulo
     const moduleBasePath = buildModuleBasePath(selectedModule);
 
     const routesData = selectedModule.publicRoutes?.map((route, idx) => ({
@@ -362,35 +376,68 @@ const SiteConfigurationPage = ({ siteConfig: propSiteConfig, siteId: propSiteId 
       },
     ];
 
+    // Detectar si es un submódulo incorporado
+    const isIncorporated = selectedModule.isIncorporated;
+    const parentModuleName = selectedModule.parentModuleName;
+
     return (
       <Space direction="vertical" style={{ width: '100%' }} size="large">
+        {/* Alert para submódulos incorporados */}
+        {isIncorporated && (
+          <Alert
+            message={`Submódulo de ${parentModuleName}`}
+            description={
+              <>
+                <Text>Este es un submódulo gestionado por <Text strong>{parentModuleName}</Text>.</Text>
+                <br />
+                <Text type="secondary">
+                  La configuración y rutas se definen en el módulo <Text code>{selectedModule.module}</Text>.
+                </Text>
+              </>
+            }
+            type="info"
+            showIcon
+            icon={<AppstoreOutlined />}
+          />
+        )}
+        
         <Descriptions title="Información del Módulo" bordered column={2}>
           <Descriptions.Item label="ID">{selectedModule.id}</Descriptions.Item>
           <Descriptions.Item label="Módulo">{selectedModule.module}</Descriptions.Item>
-          <Descriptions.Item label="Scope">{selectedModule.scope || 'N/A'}</Descriptions.Item>
-          <Descriptions.Item label="Prioridad">{selectedModule.priority}</Descriptions.Item>
-          <Descriptions.Item label="Carga">
-            <Tag color={selectedModule.lazy ? 'orange' : 'green'}>
-              {selectedModule.lazy ? 'Lazy (Bajo demanda)' : 'Eager (Inmediata)'}
-            </Tag>
-          </Descriptions.Item>
-          <Descriptions.Item label="Ruta Base">
-            <Text code>{selectedModule.routes || 'N/A'}</Text>
-          </Descriptions.Item>
+          {!isIncorporated && (
+            <>
+              <Descriptions.Item label="Scope">{selectedModule.scope || 'N/A'}</Descriptions.Item>
+              <Descriptions.Item label="Prioridad">{selectedModule.priority || 'N/A'}</Descriptions.Item>
+              <Descriptions.Item label="Carga">
+                <Tag color={selectedModule.lazy ? 'orange' : 'green'}>
+                  {selectedModule.lazy ? 'Lazy (Bajo demanda)' : 'Eager (Inmediata)'}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Ruta Base">
+                <Text code>{selectedModule.routes || 'N/A'}</Text>
+              </Descriptions.Item>
+            </>
+          )}
           <Descriptions.Item label="Módulo Padre" span={2}>
-            {selectedModule.routing?.parentModule || <Tag>Módulo Raíz</Tag>}
-          </Descriptions.Item>
-          <Descriptions.Item label="Dependencias" span={2}>
-            {selectedModule.dependencies?.length > 0 ? (
-              <Space wrap>
-                {selectedModule.dependencies.map(dep => (
-                  <Tag key={dep} icon={<ApiOutlined />}>{dep}</Tag>
-                ))}
-              </Space>
+            {isIncorporated ? (
+              <Tag color="cyan">{parentModuleName}</Tag>
             ) : (
-              <Text type="secondary">Sin dependencias</Text>
+              selectedModule.routing?.parentModule || <Tag>Módulo Raíz</Tag>
             )}
           </Descriptions.Item>
+          {!isIncorporated && selectedModule.dependencies && (
+            <Descriptions.Item label="Dependencias" span={2}>
+              {selectedModule.dependencies?.length > 0 ? (
+                <Space wrap>
+                  {selectedModule.dependencies.map(dep => (
+                    <Tag key={dep} icon={<ApiOutlined />}>{dep}</Tag>
+                  ))}
+                </Space>
+              ) : (
+                <Text type="secondary">Sin dependencias</Text>
+              )}
+            </Descriptions.Item>
+          )}
         </Descriptions>
 
         {/* Módulos que incorpora (desde index.js) */}
@@ -466,9 +513,44 @@ const SiteConfigurationPage = ({ siteConfig: propSiteConfig, siteId: propSiteId 
         )}
 
         {/* Configuración adicional del módulo */}
-        {selectedModule.config && (
+        {selectedModule.config && typeof selectedModule.config === 'string' && (
           <Card title="Archivo de Configuración" size="small">
             <Text code>{selectedModule.config}</Text>
+          </Card>
+        )}
+        
+        {/* Configuración cargada (objeto) */}
+        {selectedModule.config && typeof selectedModule.config === 'object' && (
+          <Card title="Configuración del Módulo" size="small" extra={<Tag color="blue">Desde ConfigLoader</Tag>}>
+            <Alert
+              message="Configuración Base"
+              description={
+                <>
+                  <Text>Este módulo tiene configuración cargada con el sistema de cascada.</Text>
+                  <br />
+                  <Text type="secondary">
+                    Ver pestaña "Configuraciones de Módulos" para detalles completos.
+                  </Text>
+                </>
+              }
+              type="info"
+              showIcon
+              style={{ marginBottom: 12 }}
+            />
+            <Collapse>
+              <Panel header="Ver configuración" key="config">
+                <pre style={{ 
+                  background: '#f5f5f5', 
+                  padding: 12, 
+                  borderRadius: 4,
+                  maxHeight: 300,
+                  overflow: 'auto',
+                  fontSize: 11
+                }}>
+                  {JSON.stringify(selectedModule.config, null, 2)}
+                </pre>
+              </Panel>
+            </Collapse>
           </Card>
         )}
       </Space>
