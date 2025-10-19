@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import {
   Typography,
@@ -55,6 +55,7 @@ import {
 // Componentes
 import AccountForm from '../../components/AccountForm';
 import ConnectionTestModal from '../../components/ConnectionTestModal';
+import LinkSubAccountsModal from '../../components/LinkSubAccountsModal';
 
 const { Title, Text } = Typography;
 
@@ -66,6 +67,8 @@ const AccountsManagement = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [testingConnection, setTestingConnection] = useState(null);
   const [testModalVisible, setTestModalVisible] = useState(false);
+  const [linkSubAccountsVisible, setLinkSubAccountsVisible] = useState(false);
+  const [selectedMCCAccount, setSelectedMCCAccount] = useState(null);
 
   // TODO: Obtener projectId del contexto o props
   const projectId = null; // Temporalmente deshabilitado hasta obtener projectId real
@@ -315,22 +318,30 @@ const AccountsManagement = () => {
     {
       title: 'Cuenta',
       key: 'account',
-      render: (_, record) => (
-        <Space direction="vertical" size={0}>
-          <Space>
-            <GoogleOutlined style={{ color: '#4285f4' }} />
-            <Text strong>{record.name}</Text>
-          </Space>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            ID: {record.customerId}
-          </Text>
-          {record.accountInfo?.descriptiveName && (
+      render: (_, record) => {
+        const isSubAccount = !!record?.managerAccount?._id;
+        return (
+          <Space direction="vertical" size={0} style={{ marginLeft: isSubAccount ? 24 : 0 }}>
+            <Space>
+              <GoogleOutlined style={{ color: '#4285f4' }} />
+              <Text strong>{record.name}</Text>
+            </Space>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              {record.accountInfo.descriptiveName}
+              ID: {record.customerId}
             </Text>
-          )}
-        </Space>
-      )
+            {record.accountInfo?.descriptiveName && (
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                {record.accountInfo.descriptiveName}
+              </Text>
+            )}
+            {isSubAccount && (
+              <Tag color="blue" style={{ fontSize: 11 }}>
+                Subcuenta de {record.managerAccount?.name || record.managerAccount?.customerId}
+              </Tag>
+            )}
+          </Space>
+        );
+      }
     },
     {
       title: 'Estado',
@@ -389,6 +400,11 @@ const AccountsManagement = () => {
               Sin credenciales
             </Tag>
           )}
+          {record.inheritsCredentials && (
+            <Tag color="geekblue" style={{ fontSize: 11 }}>
+              Hereda credenciales
+            </Tag>
+          )}
           {record.accountInfo?.testAccount && (
             <Tag color="orange">Cuenta de prueba</Tag>
           )}
@@ -429,6 +445,15 @@ const AccountsManagement = () => {
             icon: <SyncOutlined />,
             onClick: () => handleSync(record._id)
           },
+          !record.managerAccount && {
+            key: 'link-subaccounts',
+            label: 'Vincular Subcuentas',
+            icon: <ApiOutlined />,
+            onClick: () => {
+              setSelectedMCCAccount(record);
+              setLinkSubAccountsVisible(true);
+            }
+          },
           {
             key: 'refresh',
             label: 'Refrescar Token',
@@ -449,10 +474,12 @@ const AccountsManagement = () => {
           }
         ];
 
+        const filteredItems = items.filter(Boolean).filter(item => item.key !== 'delete');
+
         return (
           <Space>
             <Dropdown
-              menu={{ items: items.filter(item => item.key !== 'delete') }}
+              menu={{ items: filteredItems }}
               trigger={['click']}
             >
               <Button icon={<MoreOutlined />} />
@@ -473,7 +500,38 @@ const AccountsManagement = () => {
     }
   ];
 
-  const accounts = data || [];
+  const accounts = useMemo(() => {
+    if (!data || data.length === 0) return [];
+
+    const managers = [];
+    const subAccountsByManager = new Map();
+
+    data.forEach(account => {
+      if (account.managerAccount?._id) {
+        const list = subAccountsByManager.get(account.managerAccount._id) || [];
+        list.push(account);
+        subAccountsByManager.set(account.managerAccount._id, list);
+      } else {
+        managers.push(account);
+      }
+    });
+
+    const ordered = [];
+    managers.forEach(manager => {
+      ordered.push(manager);
+      const subs = subAccountsByManager.get(manager._id) || [];
+      subs.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      ordered.push(...subs);
+      subAccountsByManager.delete(manager._id);
+    });
+
+    // Append orphan subaccounts (sin manager cargado) al final
+    subAccountsByManager.forEach(subs => {
+      subs.forEach(sub => ordered.push(sub));
+    });
+
+    return ordered;
+  }, [data]);
 
   return (
     <div>
@@ -539,6 +597,18 @@ const AccountsManagement = () => {
         onClose={() => {
           setTestModalVisible(false);
           setTestingConnection(null);
+        }}
+      />
+
+      <LinkSubAccountsModal
+        visible={linkSubAccountsVisible}
+        managerAccount={selectedMCCAccount}
+        onClose={() => {
+          setLinkSubAccountsVisible(false);
+          setSelectedMCCAccount(null);
+        }}
+        onSuccess={() => {
+          refetch();
         }}
       />
     </div>

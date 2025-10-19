@@ -19,7 +19,7 @@ Abre: https://console.cloud.google.com/apis/credentials
 
 ### Paso 2: Editar tu Client ID Actual
 
-1. Click en tu Client ID existente: `689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com`
+1. Click en tu Client ID existente (ejemplo: `YOUR_CLIENT_ID.apps.googleusercontent.com`)
 
 ### Paso 3: Añadir URI de Redirección
 
@@ -66,8 +66,8 @@ Click en **"Nueva Cuenta"**
 
 **IMPORTANTE:** Ahora necesitas llenar **ambos campos** antes de generar la URL:
 
-- **Client ID:** `689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com`
-- **Client Secret:** `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`
+- **Client ID:** `YOUR_CLIENT_ID.apps.googleusercontent.com`
+- **Client Secret:** `YOUR_CLIENT_SECRET`
 
 ### Paso 4: Generar URL
 
