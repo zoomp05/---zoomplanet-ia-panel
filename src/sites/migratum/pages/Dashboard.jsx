@@ -1,80 +1,356 @@
 import React from 'react';
-import { Card, Row, Col, Statistic, Typography } from 'antd';
+import { Card, Row, Col, Statistic, Button, Space, Alert, Progress } from 'antd';
 import { 
+  WalletOutlined, 
   UserOutlined, 
-  ProjectOutlined, 
-  TeamOutlined,
-  SettingOutlined 
+  CreditCardOutlined, 
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+  TrophyOutlined,
+  HomeOutlined,
+  DollarOutlined,
+  SafetyCertificateOutlined,
+  FileTextOutlined,
+  BankOutlined
 } from '@ant-design/icons';
-
-const { Title } = Typography;
+import { useModuleNavigation } from '@hooks/useModuleNavigation';
 
 /**
  * Dashboard principal de Migratum
- * Panel de control administrativo
+ * Panel de administración para servicios financieros para inmigrantes en Canadá
  */
 const Dashboard = () => {
+  const { navigateContextual } = useModuleNavigation();
+
   return (
     <div style={{ padding: '24px' }}>
-      <Title level={2}>Dashboard Administrativo</Title>
-      <Title level={4} type="secondary">
-        Bienvenido al panel de administración de Migratum
-      </Title>
+      {/* Header del dashboard */}
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 'bold' }}>
+          Migratum - Servicios Financieros
+        </h1>
+        <p style={{ margin: '8px 0 0 0', fontSize: '16px', color: '#666' }}>
+          Panel administrativo para servicios financieros para inmigrantes en Canadá
+        </p>
+      </div>
 
-      <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
-        <Col xs={24} sm={12} lg={6}>
+      {/* Alertas importantes */}
+      <Alert
+        message="Sistema Operativo"
+        description="3 solicitudes de KYC pendientes de revisión. 2 créditos esperando aprobación. Wallet funcionando correctamente."
+        type="info"
+        showIcon
+        style={{ marginBottom: '24px' }}
+        action={
+          <Space>
+            <Button size="small" type="text" onClick={() => navigateContextual('/kyc/pending', 'site')}>
+              Ver KYC
+            </Button>
+            <Button size="small" type="text" onClick={() => navigateContextual('/credits/pending', 'site')}>
+              Ver Créditos
+            </Button>
+          </Space>
+        }
+      />
+      
+      {/* Estadísticas principales */}
+      <Row gutter={16} style={{ marginBottom: '32px' }}>
+        <Col span={6}>
           <Card>
             <Statistic
-              title="Usuarios Totales"
-              value={0}
-              prefix={<UserOutlined />}
+              title="Usuarios Registrados"
+              value={847}
               valueStyle={{ color: '#3f8600' }}
+              prefix={<UserOutlined />}
             />
+            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+              <Progress percent={75} size="small" />
+              <span>75% con KYC completado</span>
+            </div>
           </Card>
         </Col>
-        
-        <Col xs={24} sm={12} lg={6}>
+        <Col span={6}>
           <Card>
             <Statistic
-              title="Proyectos Activos"
-              value={0}
-              prefix={<ProjectOutlined />}
+              title="Wallets Activas"
+              value={632}
               valueStyle={{ color: '#1890ff' }}
+              prefix={<WalletOutlined />}
             />
+            <Button 
+              type="link" 
+              size="small" 
+              style={{ padding: 0, marginTop: '8px' }}
+              onClick={() => navigateContextual('/wallet/management', 'site')}
+            >
+              Gestionar Wallets →
+            </Button>
           </Card>
         </Col>
-        
-        <Col xs={24} sm={12} lg={6}>
+        <Col span={6}>
           <Card>
             <Statistic
-              title="Cuentas"
-              value={0}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: '#cf1322' }}
-            />
-          </Card>
-        </Col>
-        
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Configuraciones"
-              value={0}
-              prefix={<SettingOutlined />}
+              title="Créditos Activos"
+              value={234}
               valueStyle={{ color: '#722ed1' }}
+              prefix={<CreditCardOutlined />}
             />
+            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+              $2.4M CAD en créditos
+            </div>
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Transacciones Hoy"
+              value={156}
+              valueStyle={{ color: '#eb2f96' }}
+              prefix={<DollarOutlined />}
+            />
+            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+              $45,230 CAD volumen
+            </div>
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
-        <Col span={24}>
-          <Card title="Acciones Rápidas">
-            <p>Panel de administración en construcción...</p>
-            <p>Aquí se mostrarán las herramientas y módulos administrativos de Migratum.</p>
+      {/* Secciones principales */}
+      <Row gutter={16}>
+        <Col span={8}>
+          <Card 
+            title={
+              <span>
+                <SafetyCertificateOutlined style={{ marginRight: '8px' }} />
+                KYC y Verificación
+              </span>
+            }
+            extra={
+              <Button 
+                type="primary" 
+                size="small"
+                onClick={() => navigateContextual('/kyc', 'site')}
+              >
+                Gestionar
+              </Button>
+            }
+            style={{ height: '300px' }}
+          >
+            <p style={{ color: '#666', marginBottom: '16px' }}>
+              Verificación de identidad y documentos migratorios
+            </p>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Pendientes de Revisión</span>
+                <span style={{ color: '#faad14', fontWeight: 'bold' }}>3</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Aprobados Hoy</span>
+                <span style={{ color: '#52c41a' }}>12</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Rechazados</span>
+                <span style={{ color: '#ff4d4f' }}>2</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Tasa de Aprobación</span>
+                <span style={{ color: '#1890ff' }}>94.2%</span>
+              </div>
+            </Space>
+          </Card>
+        </Col>
+        
+        <Col span={8}>
+          <Card 
+            title={
+              <span>
+                <WalletOutlined style={{ marginRight: '8px' }} />
+                Wallet y Token
+              </span>
+            }
+            extra={
+              <Button 
+                type="primary" 
+                size="small"
+                onClick={() => navigateContextual('/wallet', 'site')}
+              >
+                Dashboard
+              </Button>
+            }
+            style={{ height: '300px' }}
+          >
+            <p style={{ color: '#666', marginBottom: '16px' }}>
+              Gestión de billeteras digitales y token propio
+            </p>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Token en Circulación</span>
+                <span style={{ color: '#1890ff' }}>2.4M MIG</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Precio Actual</span>
+                <span style={{ color: '#52c41a' }}>$1.25 CAD</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Transacciones P2P</span>
+                <span style={{ color: '#722ed1' }}>89</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Conversiones Fiat</span>
+                <span style={{ color: '#eb2f96' }}>67</span>
+              </div>
+            </Space>
+          </Card>
+        </Col>
+
+        <Col span={8}>
+          <Card 
+            title={
+              <span>
+                <CreditCardOutlined style={{ marginRight: '8px' }} />
+                Créditos y Finanzas
+              </span>
+            }
+            extra={
+              <Button 
+                type="primary" 
+                size="small"
+                onClick={() => navigateContextual('/credits', 'site')}
+              >
+                Revisar
+              </Button>
+            }
+            style={{ height: '300px' }}
+          >
+            <p style={{ color: '#666', marginBottom: '16px' }}>
+              Solicitudes de crédito y evaluación financiera
+            </p>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Solicitudes Pendientes</span>
+                <span style={{ color: '#faad14', fontWeight: 'bold' }}>2</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Aprobados Este Mes</span>
+                <span style={{ color: '#52c41a' }}>45</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Monto Promedio</span>
+                <span style={{ color: '#1890ff' }}>$8,500 CAD</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Tasa de Morosidad</span>
+                <span style={{ color: '#eb2f96' }}>2.1%</span>
+              </div>
+            </Space>
           </Card>
         </Col>
       </Row>
+
+      {/* Sección de servicios adicionales */}
+      <Row gutter={16} style={{ marginTop: '24px' }}>
+        <Col span={12}>
+          <Card 
+            title={
+              <span>
+                <HomeOutlined style={{ marginRight: '8px' }} />
+                Vivienda
+              </span>
+            }
+            extra={
+              <Button 
+                size="small"
+                onClick={() => navigateContextual('/housing', 'site')}
+              >
+                Gestionar
+              </Button>
+            }
+            size="small"
+          >
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Propiedades Activas</span>
+                <span style={{ color: '#1890ff' }}>127</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Aplicaciones Pendientes</span>
+                <span style={{ color: '#faad14' }}>8</span>
+              </div>
+            </Space>
+          </Card>
+        </Col>
+        
+        <Col span={12}>
+          <Card 
+            title={
+              <span>
+                <FileTextOutlined style={{ marginRight: '8px' }} />
+                Compliance
+              </span>
+            }
+            extra={
+              <Button 
+                size="small"
+                onClick={() => navigateContextual('/reports', 'site')}
+              >
+                Ver Reportes
+              </Button>
+            }
+            size="small"
+          >
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Reportes Generados</span>
+                <span style={{ color: '#52c41a' }}>23</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Auditorías Pendientes</span>
+                <span style={{ color: '#722ed1' }}>1</span>
+              </div>
+            </Space>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Acciones rápidas */}
+      <Card 
+        title="Acciones Rápidas" 
+        style={{ marginTop: '24px' }}
+      >
+        <Space size="middle" wrap>
+          <Button 
+            type="primary" 
+            icon={<SafetyCertificateOutlined />}
+            onClick={() => navigateContextual('/kyc/pending', 'site')}
+          >
+            Revisar KYC Pendientes
+          </Button>
+          <Button 
+            icon={<CreditCardOutlined />}
+            onClick={() => navigateContextual('/credits/pending', 'site')}
+          >
+            Aprobar Créditos
+          </Button>
+          <Button 
+            icon={<WalletOutlined />}
+            onClick={() => navigateContextual('/wallet/transactions', 'site')}
+          >
+            Monitorear Transacciones
+          </Button>
+          <Button 
+            icon={<UserOutlined />}
+            onClick={() => navigateContextual('/admin/users', 'site')}
+          >
+            Gestionar Usuarios
+          </Button>
+          <Button 
+            icon={<FileTextOutlined />}
+            onClick={() => navigateContextual('/reports/financial', 'site')}
+          >
+            Generar Reporte
+          </Button>
+        </Space>
+      </Card>
     </div>
   );
 };

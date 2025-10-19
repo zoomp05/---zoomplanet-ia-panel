@@ -137,10 +137,106 @@ export default {
           account: 'sites/migratum/layouts/AdminLayout.jsx'
         }
       }
+    },
+    
+    // ----------------------------------------
+    // ADMIN - Módulo de administración principal
+    // Ruta: /migratum/admin/*
+    // ----------------------------------------
+    {
+      id: 'admin',
+      module: 'admin',
+      scope: 'admin',
+      config: './config/admin.config.js',
+      lazy: false,
+      routes: '/admin',
+      priority: 3,
+      dependencies: ['auth', 'account'],
+      
+      // Rutas protegidas
+      protectedRoutes: {
+        '': {
+          allow: true,
+          policies: [{ roles: ['admin'] }]
+        }
+      },
+      
+      // Configuración de routing
+      routing: {
+        parentModule: null,
+        routePrefix: 'admin',
+        inheritLayouts: {
+          admin: 'sites/migratum/layouts/AdminLayout.jsx'
+        }
+      }
+    },
+    
+    // ----------------------------------------
+    // WALLET - Gestión de billeteras digitales y token
+    // Ruta: /migratum/wallet/*
+    // ----------------------------------------
+    {
+      id: 'wallet',
+      module: 'wallet',
+      scope: 'admin',
+      config: './config/wallet.config.js',
+      lazy: false,
+      routes: '/wallet',
+      priority: 4,
+      dependencies: ['auth', 'account'],
+      
+      // Rutas protegidas
+      protectedRoutes: {
+        '': {
+          allow: true,
+          policies: [{ roles: ['admin', 'financial_admin'] }]
+        }
+      },
+      
+      // Configuración de routing
+      routing: {
+        parentModule: null,
+        routePrefix: 'wallet',
+        inheritLayouts: {
+          wallet: 'sites/migratum/layouts/AdminLayout.jsx'
+        }
+      }
+    },
+
+    // ----------------------------------------
+    // KYC - Verificación de identidad y documentos
+    // Ruta: /migratum/kyc/*
+    // ----------------------------------------
+    {
+      id: 'kyc',
+      module: 'kyc',
+      scope: 'admin',
+      config: './config/kyc.config.js',
+      lazy: false,
+      routes: '/kyc',
+      priority: 5,
+      dependencies: ['auth', 'account'],
+      
+      // Rutas protegidas
+      protectedRoutes: {
+        '': {
+          allow: true,
+          policies: [{ roles: ['admin', 'kyc_reviewer'] }]
+        }
+      },
+      
+      // Configuración de routing
+      routing: {
+        parentModule: null,
+        routePrefix: 'kyc',
+        inheritLayouts: {
+          kyc: 'sites/migratum/layouts/AdminLayout.jsx'
+        }
+      }
     }
     
     // NOTA: Aquí se agregarán más módulos conforme se necesiten:
-    // - project, crm, marketing, googleAds, newsletter, etc.
+    // - credits, housing, compliance, etc.
   ],
   
   // ============================================
