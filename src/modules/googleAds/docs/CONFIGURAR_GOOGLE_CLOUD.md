@@ -84,7 +84,7 @@ Click en **"Nueva Cuenta"**
 - **Nombre:** "Mi Cuenta Test"
 - **Customer ID:** "123-456-7890"
 - **Client ID:** `689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com`
-- **Client Secret:** `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`
+- client secret
 
 ### Paso 4: Click en Botón
 **"Generar URL de Autorización OAuth2"**
