@@ -9,7 +9,7 @@ https://console.cloud.google.com/apis/credentials
 
 ### 2️⃣ Editar tu Client ID
 
-1. Busca en la lista: `689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com`
+1. Busca en la lista tu Client ID (ejemplo: `YOUR_CLIENT_ID.apps.googleusercontent.com`)
 2. **Click en el nombre** (no en el ID)
 
 ### 3️⃣ Añadir URI de Redirección
@@ -83,8 +83,8 @@ Click en **"Nueva Cuenta"**
 ### Paso 3: Llenar Campos
 - **Nombre:** "Mi Cuenta Test"
 - **Customer ID:** "123-456-7890"
-- **Client ID:** `689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com`
-- **Client Secret:** `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`
+- **Client ID:** `YOUR_CLIENT_ID.apps.googleusercontent.com`
+- **Client Secret:** `YOUR_CLIENT_SECRET`
 
 ### Paso 4: Click en Botón
 **"Generar URL de Autorización OAuth2"**

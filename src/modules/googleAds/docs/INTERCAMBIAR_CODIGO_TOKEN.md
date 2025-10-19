@@ -10,8 +10,8 @@ Después de generar la URL de autorización OAuth2 y autorizar la aplicación en
 
 ### Paso 1: Tener a Mano
 - **Código de autorización** que te dio Google (ej: `4/0AeaYSHABC123...`)
-- **Client ID:** `689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com`
-- **Client Secret:** `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`
+- **Client ID:** `YOUR_CLIENT_ID.apps.googleusercontent.com`
+- **Client Secret:** `YOUR_CLIENT_SECRET`
 
 ### Paso 2: Abrir PowerShell
 
@@ -24,8 +24,8 @@ Copia y pega este comando (reemplaza `TU_CODIGO_AQUI` con el código que te dio 
 
 ```powershell
 $body = @{
-    client_id = "689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com"
-    client_secret = "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"
+    client_id = "YOUR_CLIENT_ID.apps.googleusercontent.com"
+    client_secret = "YOUR_CLIENT_SECRET"
     code = "TU_CODIGO_AQUI"
     grant_type = "authorization_code"
     redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
@@ -73,8 +73,8 @@ curl http://localhost:4000
 ```powershell
 $body = @{
     code = "TU_CODIGO_AQUI"
-    clientId = "689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com"
-    clientSecret = "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"
+    clientId = "YOUR_CLIENT_ID.apps.googleusercontent.com"
+    clientSecret = "YOUR_CLIENT_SECRET"
 } | ConvertTo-Json
 
 $response = Invoke-RestMethod `
@@ -95,8 +95,8 @@ Write-Host $response.tokens.refresh_token -ForegroundColor Yellow
 
 ```bash
 curl -X POST "https://oauth2.googleapis.com/token" ^
-  -d "client_id=689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com" ^
-  -d "client_secret=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" ^
+  -d "client_id=YOUR_CLIENT_ID.apps.googleusercontent.com" ^
+  -d "client_secret=YOUR_CLIENT_SECRET" ^
   -d "code=TU_CODIGO_AQUI" ^
   -d "grant_type=authorization_code" ^
   -d "redirect_uri=urn:ietf:wg:oauth:2.0:oob"
@@ -111,8 +111,8 @@ Si el comando anterior te devuelve JSON completo y quieres extraer solo el refre
 ```powershell
 # Con formato bonito
 $body = @{
-    client_id = "689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com"
-    client_secret = "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"
+    client_id = "YOUR_CLIENT_ID.apps.googleusercontent.com"
+    client_secret = "YOUR_CLIENT_SECRET"
     code = "TU_CODIGO_AQUI"
     grant_type = "authorization_code"
     redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
@@ -186,9 +186,7 @@ Write-Host $expiryDate.ToString("yyyy-MM-dd HH:mm:ss") -ForegroundColor Yellow
 
 **Causa:** Client ID o Client Secret incorrectos
 
-**Solución:** Verifica que estés usando:
-- Client ID: `689750185751-s1j9ih9tk5dqgfv70l55e0dkhmqp54ca.apps.googleusercontent.com`
-- Client Secret: `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`
+**Solución:** Verifica que estés usando las credenciales correctas de tu proyecto en Google Cloud Console.
 
 ---
 

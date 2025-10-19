@@ -41,6 +41,23 @@ export const GADS_ACCOUNT_FRAGMENT = gql`
     isActive
     createdAt
     updatedAt
+    inheritsCredentials
+    managerAccount {
+      _id
+      customerId
+      name
+    }
+    subAccounts {
+      _id
+      customerId
+      name
+      inheritsCredentials
+      hasCredentials
+      managerAccount {
+        _id
+        name
+      }
+    }
   }
 `;
 
