@@ -90,6 +90,34 @@ export const SYNC_GADS_ACCOUNT_INFO = gql`
   }
 `;
 
+export const LINK_SUB_ACCOUNT_TO_MCC = gql`
+  ${GADS_ACCOUNT_FRAGMENT}
+  mutation LinkSubAccountToMCC($subAccountId: ID!, $managerAccountId: ID!) {
+    linkSubAccountToMCC(subAccountId: $subAccountId, managerAccountId: $managerAccountId) {
+      success
+      message
+      account {
+        ...GAdsAccountFragment
+      }
+      errors
+    }
+  }
+`;
+
+export const CREATE_SUB_ACCOUNT = gql`
+  ${GADS_ACCOUNT_FRAGMENT}
+  mutation CreateSubAccount($input: CreateSubAccountInput!) {
+    createSubAccount(input: $input) {
+      success
+      message
+      account {
+        ...GAdsAccountFragment
+      }
+      errors
+    }
+  }
+`;
+
 // ============================================
 // MUTATIONS - CAMPAIGNS
 // ============================================
