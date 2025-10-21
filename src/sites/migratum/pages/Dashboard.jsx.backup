@@ -74,15 +74,17 @@ const Dashboard = () => {
         showBreadcrumb={true}
       />
 
-      {/* Header del dashboard */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 'bold' }}>
-          Servicios Financieros - Resumen
-        </h1>
-        <p style={{ margin: '8px 0 0 0', fontSize: '16px', color: '#666' }}>
-          Monitoreo en tiempo real de todos los servicios para inmigrantes en Canadá
-        </p>
-      </div>
+      {/* Contenido del dashboard */}
+      <div style={{ padding: '0 0 24px 0' }}>
+        {/* Header del dashboard */}
+        <div style={{ marginBottom: '24px' }}>
+          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 'bold' }}>
+            Servicios Financieros - Resumen
+          </h1>
+          <p style={{ margin: '8px 0 0 0', fontSize: '16px', color: '#666' }}>
+            Monitoreo en tiempo real de todos los servicios para inmigrantes en Canadá
+          </p>
+        </div>
 
       {/* Alertas importantes */}
       <Alert
@@ -401,7 +403,8 @@ const Dashboard = () => {
           </Button>
         </Space>
       </Card>
-    </div>
+      </div> {/* Cierre del div de contenido del dashboard */}
+    </div> {/* Cierre del div principal */}
   );
 };
 

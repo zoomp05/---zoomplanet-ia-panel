@@ -20,6 +20,11 @@ const { Header, Sider, Content, Footer } = Layout;
  * @param {Object} props.topMenuConfig - Configuración del menú superior
  * @param {string} props.siteName - Nombre del sitio
  * @param {React.Component} props.logo - Componente de logo
+ * @param {Object} props.logoProps - Props para pasar al componente de logo (sidebar)
+ * @param {Object} props.logoStyle - Estilos adicionales para el contenedor del logo (sidebar)
+ * @param {Object} props.headerLogoProps - Props para pasar al componente de logo (header)
+ * @param {string} props.sidebarLogoSize - Tamaño del logo en sidebar ('small', 'medium', 'large')
+ * @param {string} props.headerLogoSize - Tamaño del logo en header ('small', 'medium', 'large')
  * @param {Object} props.user - Datos del usuario actual
  * @param {Function} props.onLogout - Callback para logout
  * @param {string} props.footerText - Texto del footer (opcional)
@@ -31,6 +36,11 @@ const AppLayout = ({
   topMenuConfig,
   siteName = 'App',
   logo: LogoComponent,
+  logoProps = {},
+  logoStyle = {},
+  headerLogoProps = {},
+  sidebarLogoSize = 'medium',
+  headerLogoSize = 'small',
   user,
   onLogout,
   footerText,
@@ -82,13 +92,17 @@ const AppLayout = ({
           justifyContent: 'center',
           color: '#fff',
           fontSize: collapsed ? 16 : 20,
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          ...logoStyle
         }}>
           {LogoComponent ? (
             collapsed ? (
               siteName.charAt(0).toUpperCase()
             ) : (
-              <LogoComponent size="medium" />
+              <LogoComponent 
+                size={sidebarLogoSize}
+                {...logoProps}
+              />
             )
           ) : (
             collapsed ? siteName.charAt(0).toUpperCase() : siteName.toUpperCase()
@@ -136,6 +150,8 @@ const AppLayout = ({
             userMenuConfig={topMenuConfig}
             siteName={siteName}
             logo={LogoComponent}
+            logoSize={headerLogoSize}
+            logoProps={headerLogoProps}
             user={user}
             onLogout={onLogout}
           />

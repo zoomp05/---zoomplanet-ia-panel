@@ -19,6 +19,8 @@ import { useModuleNavigation } from '@hooks/useModuleNavigation';
  * @param {string} props.siteName - Nombre del sitio para mostrar
  * @param {Function} props.onLogout - Callback para cerrar sesión
  * @param {React.Component} props.logo - Componente de logo personalizado
+ * @param {string} props.logoSize - Tamaño del logo ('small', 'medium', 'large')
+ * @param {Object} props.logoProps - Props adicionales para pasar al componente de logo
  * @param {Array} props.actions - Acciones adicionales para mostrar en el header
  */
 const TopMenu = ({ 
@@ -27,6 +29,8 @@ const TopMenu = ({
   siteName = 'Site',
   onLogout,
   logo: LogoComponent,
+  logoSize = 'small',
+  logoProps = {},
   actions = []
 }) => {
   const navigate = useNavigate();
@@ -83,7 +87,12 @@ const TopMenu = ({
         alignItems: 'center', 
         gap: 12 
       }}>
-        {LogoComponent && <LogoComponent size="small" />}
+        {LogoComponent && (
+          <LogoComponent 
+            size={logoSize}
+            {...logoProps}
+          />
+        )}
         <span style={{ 
           fontSize: 16, 
           fontWeight: 600,
