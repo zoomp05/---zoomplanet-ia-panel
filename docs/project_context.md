@@ -142,7 +142,7 @@ Sistema de referidos: Bonificaciones en tokens por invitar a otros usuarios.
 
 
 
- Panel Administrativo Web
+Panel Administrativo Web
 Dashboard de métricas: Estadísticas en tiempo real sobre usuarios, transacciones y créditos.
 Gestión de usuarios y KYC: Validación, suspensión o autorización de cuentas.
 Aprobación de créditos: Panel para revisar y aprobar solicitudes.

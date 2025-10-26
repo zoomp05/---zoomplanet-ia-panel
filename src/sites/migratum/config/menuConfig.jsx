@@ -12,6 +12,9 @@ import {
   FileTextOutlined,
   BankOutlined,
   SolutionOutlined,
+  CloudServerOutlined,
+  GlobalOutlined,
+  DollarOutlined,
 } from '@ant-design/icons';
 
 /**
@@ -246,6 +249,95 @@ export const migratumSidebarConfig = [
         key: "reports-activity", 
         label: "Actividad del Sistema", 
         url: "/reports/activity" 
+      }
+    ]
+  },
+  {
+    key: "hosting",
+    icon: <CloudServerOutlined />,
+    label: "Hosting & Dominios",
+    scope: "site",
+    children: [
+      {
+        type: 'group',
+        label: 'Hosting',
+        children: [
+          { 
+            key: "hosting-dashboard", 
+            icon: <CloudServerOutlined />,
+            label: "Dashboard", 
+            url: "/hosting" 
+          },
+          { 
+            key: "hosting-accounts", 
+            label: "Cuentas de Hosting", 
+            url: "/hosting/accounts" 
+          },
+          { 
+            key: "hosting-plans", 
+            label: "Planes", 
+            url: "/hosting/plans" 
+          },
+          { 
+            key: "hosting-resources", 
+            label: "Recursos", 
+            url: "/hosting/resources" 
+          }
+        ]
+      },
+      {
+        type: 'group',
+        label: 'Dominios',
+        children: [
+          { 
+            key: "domains-list",
+            icon: <GlobalOutlined />,
+            label: "Mis Dominios", 
+            url: "/hosting/domains" 
+          },
+          { 
+            key: "domains-dns", 
+            label: "DNS Manager", 
+            url: "/hosting/domains/dns" 
+          },
+          { 
+            key: "domains-transfer", 
+            label: "Transferencias", 
+            url: "/hosting/domains/transfer" 
+          }
+        ]
+      },
+      {
+        type: 'group',
+        label: 'Facturación',
+        children: [
+          { 
+            key: "billing-dashboard",
+            icon: <DollarOutlined />,
+            label: "Dashboard Billing", 
+            url: "/hosting/billing" 
+          },
+          { 
+            key: "billing-invoices", 
+            label: "Facturas", 
+            url: "/hosting/billing/invoices" 
+          },
+          { 
+            key: "billing-plans", 
+            label: "Planes y Precios", 
+            url: "/hosting/billing/plans" 
+          },
+          { 
+            key: "billing-payment-methods", 
+            label: "Métodos de Pago", 
+            url: "/hosting/billing/payment-methods" 
+          },
+          { 
+            key: "billing-usage", 
+            label: "Uso y Estadísticas", 
+            url: "/hosting/billing/usage" 
+          }
+        ]
       }
     ]
   },
