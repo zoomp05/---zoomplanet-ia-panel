@@ -1,7 +1,7 @@
 // src/pages/Users.jsx
 import React, { useState } from 'react';
-import UserList from '../components/user/UserList';
-import UserModal from '../components/user/UserModal';
+import UserList from '@modules/user/components/user/UserList.jsx';
+import UserModal from '@modules/user/components/user/UserModal.jsx';
 import { Button, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
