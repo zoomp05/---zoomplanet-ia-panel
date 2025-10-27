@@ -25,6 +25,8 @@ export default {
     'crm',
     'account',
     'newsletter',
+    'commerce', // E-commerce: productos, planes, membresías, pagos
+    'hosting', // Gestión de hosting, dominios y billing (consume productos de commerce)
     'site-config' // Meta: config de la configuración
   ],
   

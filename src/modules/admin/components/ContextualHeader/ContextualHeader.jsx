@@ -1,5 +1,17 @@
 import React from 'react';
-import { HomeOutlined, SettingOutlined, TrophyOutlined, UserOutlined, AppstoreOutlined, SafetyCertificateOutlined, TeamOutlined } from "@ant-design/icons";
+import { 
+  HomeOutlined, 
+  SettingOutlined, 
+  TrophyOutlined, 
+  UserOutlined, 
+  AppstoreOutlined, 
+  SafetyCertificateOutlined, 
+  TeamOutlined,
+  CloudServerOutlined,
+  GlobalOutlined,
+  DollarOutlined,
+  LineChartOutlined
+} from "@ant-design/icons";
 import { useMenuNormalizer } from '@hooks/useMenuNormalizer';
 import Menu from "@components/Menu/Menu";
 import Logo from "@components/Logo/Logo";
@@ -114,6 +126,48 @@ const baseMenuConfig = [
         children: [
           { label: 'Configuración Marketing', key: 'marketing:6', url: '/marketing/configuration' },
           { label: 'Configuración Google Ads', key: 'googleads:6', url: '/googleAds/settings' },
+        ],
+      },
+    ],
+  },
+  // Hosting & Domains
+  {
+    label: 'Hosting & Domains',
+    key: 'hosting',
+    icon: <CloudServerOutlined />,
+    scope: 'auto',
+    children: [
+      {
+        key: 'hosting-dashboard',
+        label: 'Dashboard',
+        url: '/hosting',
+        scope: 'auto'
+      },
+      {
+        type: 'group',
+        key: 'hosting-accounts-group',
+        label: 'Cuentas de Hosting',
+        children: [
+          { key: 'hosting:1', label: 'Todas las Cuentas', url: '/hosting/accounts', scope: 'auto' },
+          { key: 'hosting:2', label: 'Monitor de Recursos', url: '/hosting/resources', icon: <LineChartOutlined />, scope: 'auto' },
+          { key: 'hosting:3', label: 'Planes Disponibles', url: '/hosting/plans', scope: 'auto' },
+        ],
+      },
+      {
+        type: 'group',
+        key: 'hosting-domains-group',
+        label: 'Dominios',
+        children: [
+          { key: 'hosting:4', label: 'Mis Dominios', url: '/hosting/domains', icon: <GlobalOutlined />, scope: 'auto' },
+        ],
+      },
+      {
+        type: 'group',
+        key: 'hosting-billing-group',
+        label: 'Facturación',
+        children: [
+          { key: 'hosting:5', label: 'Dashboard Billing', url: '/hosting/billing', icon: <DollarOutlined />, scope: 'auto' },
+          { key: 'hosting:6', label: 'Facturas', url: '/hosting/billing/invoices', scope: 'auto' },
         ],
       },
     ],
