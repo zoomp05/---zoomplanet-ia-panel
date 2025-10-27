@@ -15,7 +15,7 @@ export const GET_USERS = gql`
           timezone
           bio
         }
-        role {
+        roles {
           id
           name
         }
@@ -41,7 +41,7 @@ export const CREATE_USER = gql`
           timezone
           bio
         }
-        role {
+        roles {
           id
           name
         }
@@ -69,7 +69,7 @@ export const UPDATE_USER = gql`
           timezone
           bio
         }
-        role {
+        roles {
           id
           name
         }
@@ -100,7 +100,7 @@ export const UPDATE_USER_PROFILE = gql`
           timezone
           bio
         }
-        role {
+        roles {
           id
           name
         }

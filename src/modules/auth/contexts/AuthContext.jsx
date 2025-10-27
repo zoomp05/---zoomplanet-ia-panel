@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useApolloClient, gql } from '@apollo/client';
+import { normalizeUserRoles } from '@modules/user/utils/roleUtils.js';
 
 // Creación (o reutilización) singleton del contexto para evitar duplicados cuando el archivo
 // se importa mediante rutas dinámicas y estáticas diferentes (Vite puede evaluarlo dos veces
@@ -76,7 +77,9 @@ export const AuthProvider = ({ children }) => {
     if (!loginParams) return;
     const { user: u, account: acc, accessToken: at, refreshToken: rt, remember: rm } = loginParams;
   if (!u || !at) return;
-    setUser(u); writeJSON(STORAGE_KEYS.user, u);
+    const normalizedUser = normalizeUserRoles(u);
+    setUser(normalizedUser);
+    writeJSON(STORAGE_KEYS.user, normalizedUser);
     if (acc) { setAccount(acc); writeJSON(STORAGE_KEYS.account, acc); }
     saveTokens({ accessToken: at, refreshToken: rt, remember: rm });
   }, []);
@@ -91,8 +94,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const updateUserProfile = (updated) => {
-    setUser(updated);
-    writeJSON(STORAGE_KEYS.user, updated);
+    const normalizedUser = normalizeUserRoles(updated);
+    setUser(normalizedUser);
+    writeJSON(STORAGE_KEYS.user, normalizedUser);
   };
 
   // Silent refresh flow
@@ -120,7 +124,7 @@ export const AuthProvider = ({ children }) => {
       const { data } = await client.query({ query: ME_QUERY, fetchPolicy: 'network-only' });
       const u = data?.me; // Ajustar según el schema real (puede ser data.me.user)
       if (u && (u.id || u._id)) {
-        const normalized = { ...u, id: u.id || u._id };
+        const normalized = normalizeUserRoles({ ...u, id: u.id || u._id });
         setUser(normalized);
         writeJSON(STORAGE_KEYS.user, normalized);
         return { ok: true };
@@ -142,7 +146,10 @@ export const AuthProvider = ({ children }) => {
         const rt = readJSON(STORAGE_KEYS.refresh);
         const snapUser = readJSON(STORAGE_KEYS.user);
         const snapAccount = readJSON(STORAGE_KEYS.account);
-        if (snapUser) setUser(snapUser);
+        if (snapUser) {
+          const normalizedSnap = normalizeUserRoles(snapUser);
+          setUser(normalizedSnap);
+        }
         if (snapAccount) setAccount(snapAccount);
         if (rm) setRemember(true);
         if (rt) setRefreshToken(rt);

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { userHasRole } from '@modules/user/utils/roleUtils.js';
 
 /**
  * Política por defecto de edición: 
@@ -9,13 +10,7 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 export default function useEditPolicy() {
   const { user } = useAuth();
 
-  const isAdmin = useMemo(() => {
-    if (!user) return false;
-    if (Array.isArray(user.roles)) {
-      return user.roles.some(r => (r?.name || r) === 'admin');
-    }
-    return user.role === 'admin';
-  }, [user]);
+  const isAdmin = useMemo(() => userHasRole(user, 'admin'), [user]);
 
   const canEditUser = (targetUserId) => {
     if (!user) return false;

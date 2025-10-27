@@ -1,5 +1,5 @@
 // src/components/user/UserList.jsx
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_USERS, DELETE_SOFT_USER, RESTORE_USER } from "../../apollo/user";
 import { Modal, Table, Space, Input, Select, Button, Switch, Tag } from "antd";
@@ -14,6 +14,7 @@ import {
 } from "@ant-design/icons";
 import ChangePasswordModal from "./ChangePasswordModal.jsx";
 import ProfileModal from "./UserProfileModal.jsx";
+import { normalizeUserRoles } from "@modules/user/utils/roleUtils.js";
 
 const { confirm } = Modal;
 const { Search } = Input;
@@ -23,7 +24,7 @@ const UserList = ({ onEdit }) => {
   const [filters, setFilters] = useState({
     search: "",
     status: null,
-    role: null,
+  role: null,
     page: 1,
     pageSize: 10,
     sortField: "createdAt",
@@ -50,15 +51,24 @@ const UserList = ({ onEdit }) => {
     },
   });
 
+  const refetchUsers = [{ query: GET_USERS }];
+
   const [deleteSoftUser, { loading: deleteSoftLoading }] = useMutation(DELETE_SOFT_USER, {
-    refetchQueries: [GET_USERS, "users"],
+    refetchQueries: refetchUsers,
     awaitRefetchQueries: true,
   });
 
   const [restoreUser] = useMutation(RESTORE_USER, {
-    refetchQueries: [GET_USERS, "users"],
+    refetchQueries: refetchUsers,
     awaitRefetchQueries: true,
   });
+
+  const users = useMemo(() => {
+    const edges = data?.users?.edges ?? [];
+    return edges
+      .map((edge) => normalizeUserRoles(edge))
+      .filter(Boolean);
+  }, [data]);
 
   const handleFiltersChange = (newFilters) => {
     console.log("New filters:", newFilters);
@@ -266,7 +276,7 @@ const UserList = ({ onEdit }) => {
       <Table
         loading={loading}
         columns={columns}
-        dataSource={data?.users.edges}
+        dataSource={users}
         rowKey="id"
         pagination={{
           current: filters.page,

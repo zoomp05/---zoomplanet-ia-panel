@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select, Spin } from 'antd';
 import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_USER, UPDATE_USER } from '../../apollo/user';
+import { CREATE_USER, UPDATE_USER, GET_USERS } from '../../apollo/user';
 import { GET_ROLES } from '../../apollo/role';
 import { toast } from 'react-hot-toast';
 
@@ -14,19 +14,25 @@ const UserModal = ({ visible, user, onClose }) => {
 
   const { loading: rolesLoading, data: rolesData } = useQuery(GET_ROLES);
 
+  const refetchUsers = [{ query: GET_USERS }];
+
   const [createUser, { loading: createLoading }] = useMutation(CREATE_USER, {
-    refetchQueries: ['users'],
+    refetchQueries: refetchUsers,
+    awaitRefetchQueries: true,
   });
 
   const [updateUser, { loading: updateLoading }] = useMutation(UPDATE_USER, {
-    refetchQueries: ['users'],
+    refetchQueries: refetchUsers,
+    awaitRefetchQueries: true,
   });
 
   useEffect(() => {
     if (visible && user) {
+      // normalize: if user.roles is array use first role id for form select
+      const roleId = Array.isArray(user.roles) ? (user.roles[0]?.id || undefined) : (user.role?.id || undefined);
       form.setFieldsValue({
         ...user,
-        role: user.role?.id || undefined,
+        role: roleId,
       });
     } else {
       form.resetFields();
@@ -36,12 +42,15 @@ const UserModal = ({ visible, user, onClose }) => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      
+      const { role, ...rest } = values;
+      const rolesPayload = role ? [role] : [];
+
       if (isEditing) {
+        const inputPayload = { ...rest, roles: rolesPayload };
         const { data } = await updateUser({
           variables: {
             id: user.id,
-            input: { ...values, role: values.role },
+            input: inputPayload,
           },
         });
         
@@ -50,8 +59,9 @@ const UserModal = ({ visible, user, onClose }) => {
         }
         toast.success('User updated successfully');
       } else {
+        const inputPayload = { ...rest, roles: rolesPayload };
         const { data } = await createUser({
-          variables: { input: { ...values, role: values.role } },
+          variables: { input: inputPayload },
         });
         
         if (data?.createUser.__typename === 'ValidationError') {

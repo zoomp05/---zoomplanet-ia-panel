@@ -1,3 +1,5 @@
+import { getUserRoleNames } from '@modules/user/utils/roleUtils.js';
+
 /**
  * Políticas base abstractas - sin referencias específicas a roles o sitios
  */
@@ -8,11 +10,14 @@ export const authPolicies = {
   },
   
   requireRole: (requiredRole) => (user) => {
-    return user?.role === requiredRole;
+    if (!requiredRole) return false;
+    return getUserRoleNames(user).includes(requiredRole);
   },
   
   requireAnyRole: (allowedRoles) => (user) => {
-    return Array.isArray(allowedRoles) && allowedRoles.includes(user?.role);
+    if (!Array.isArray(allowedRoles) || allowedRoles.length === 0) return false;
+    const roleNames = getUserRoleNames(user);
+    return allowedRoles.some((role) => roleNames.includes(role));
   },
   
   requirePermission: (permission) => (user) => {
