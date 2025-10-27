@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Form, Input, Select, Button, Space, message, Descriptions } from 'antd';
 import * as ApolloClient from '@apollo/client';
+import { getUserRoleNames } from '@modules/user/utils/roleUtils.js';
 
 const { gql, useQuery, useMutation } = ApolloClient;
 
@@ -18,7 +19,7 @@ const GET_MY_ACCOUNT = gql`
 // Nueva query para obtener roles del usuario y decidir permisos de edición
 const GET_ME = gql`
   query MeRole { 
-    me { id role { name } } 
+    me { id roles { id name } role { id name } }
   }
 `;
 
@@ -43,8 +44,8 @@ const MyAccount = () => {
 
   // Permiso de edición: por ahora solo roles admin / account_admin / account_edit
   const canEdit = React.useMemo(() => {
-    const roleName = meData?.me?.role?.name;
-    return ['admin', 'account_admin', 'account_edit'].includes(roleName);
+    const roleNames = getUserRoleNames(meData?.me);
+    return roleNames.some((name) => ['admin', 'account_admin', 'account_edit'].includes(name));
   }, [meData]);
 
   const acc = data?.myAccount?.__typename === 'Account' ? data.myAccount : null;

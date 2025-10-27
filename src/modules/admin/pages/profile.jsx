@@ -3,18 +3,22 @@ import { Card, Descriptions, Avatar, Button, Space, Tag } from 'antd';
 import { UserOutlined, EditOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import useEditPolicy from '../../auth/hooks/useEditPolicy';
-import ProfileModal from '../../../components/user/UserProfileModal.jsx';
-import ChangePasswordModal from '../../../components/user/ChangePasswordModal.jsx';
+import ProfileModal from '../../user/components/user/UserProfileModal.jsx';
+import ChangePasswordModal from '../../user/components/user/ChangePasswordModal.jsx';
 import * as ApolloClient from '@apollo/client';
+import { normalizeUserRoles, getUserRoleNames } from '@modules/user/utils/roleUtils.js';
 
 const { gql, useQuery } = ApolloClient;
 
-const GET_ME = gql`query MeBasic { me { id email name role { name id } profile { firstName lastName phone timezone bio } } }`;
+const GET_ME = gql`query MeBasic { me { id email name roles { id name } profile { firstName lastName phone timezone bio } } }`;
 
 const AdminProfile = () => {
   const { user: authUser } = useAuth();
   const { data, refetch } = useQuery(GET_ME, { fetchPolicy: 'cache-and-network' });
-  const user = data?.me || authUser; // fallback
+  const rawUser = data?.me || authUser; // fallback
+  const normalizedUser = React.useMemo(() => (rawUser ? normalizeUserRoles(rawUser) : null), [rawUser]);
+  const user = normalizedUser || rawUser;
+  const roleNames = React.useMemo(() => getUserRoleNames(user), [user]);
   const { canEditUser } = useEditPolicy();
 
   // Politica: el propio usuario siempre puede editar sus datos personales (perfil) excepto email, roles y estado
@@ -39,7 +43,10 @@ const AdminProfile = () => {
             <h2 style={{ margin: 0 }}>{user?.name || user?.email}</h2>
             <div style={{ color: '#888' }}>{user?.email}</div>
             <div style={{ marginTop: 4 }}>
-              {(user?.role ? [user.role] : []).map(r => <Tag key={r.name}>{r.name}</Tag>)}
+              {user?.roles?.length
+                ? user.roles.map((r) => <Tag key={r.id || r.name}>{r.name}</Tag>)
+                : <Tag>-</Tag>
+              }
             </div>
           </div>
         </Space>
@@ -51,7 +58,7 @@ const AdminProfile = () => {
           <Descriptions.Item label="Apellidos">{user?.profile?.lastName || '-'}</Descriptions.Item>
             <Descriptions.Item label="Nombre Completo">{user?.name || `${user?.profile?.firstName || ''} ${user?.profile?.lastName || ''}`}</Descriptions.Item>
           <Descriptions.Item label="Email">{user?.email || '-'}</Descriptions.Item>
-          <Descriptions.Item label="Roles">{(user?.role ? [user.role] : []).map(r => r.name).join(', ') || '-'}</Descriptions.Item>
+          <Descriptions.Item label="Roles">{roleNames.join(', ') || '-'}</Descriptions.Item>
           <Descriptions.Item label="Estado">Activo</Descriptions.Item>
           <Descriptions.Item label="Teléfono">{user?.profile?.phone || '-'}</Descriptions.Item>
           <Descriptions.Item label="Zona Horaria">{user?.profile?.timezone || '-'}</Descriptions.Item>
