@@ -6,8 +6,8 @@ export default {
   dependencies: ['auth'],
   submodules: [],
   // La función de instalación ahora recibe información sobre su ubicación jerárquica
-  install: (siteName, parentModule = null) => {
+  install: (siteName, parentModule = null, inheritedLayouts = {}, routePrefix = null) => {
     console.log(`Registrando rutas del módulo user para el sitio ${siteName}${parentModule ? ` en ${parentModule}` : ''}`);
-    registerModuleRoutes("user", routes, siteName, parentModule);
+    registerModuleRoutes("user", routes, siteName, parentModule, inheritedLayouts, { routePrefix });
   }
 };
