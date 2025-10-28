@@ -6,7 +6,7 @@
  * Migratum importa directamente solo los módulos base que necesita:
  * - base: Servicios compartidos
  * - auth: Autenticación de administradores
- * - account: Gestión de cuentas/perfiles
+ * - user, wallet, kyc, etc. se activan gradualmente según el roadmap
  * 
  * Los demás módulos de administración (project, crm, marketing, googleAds, etc.)
  * se crearán directamente en este sitio según se necesiten.
@@ -31,6 +31,14 @@ export default {
       : 'http://localhost:3000',
     author: 'Migratum Team',
   },
+
+  // Configuración de autenticación global del sitio (fallback para módulos)
+  auth: {
+    loginRoute: '/auth/login',
+    registerRoute: '/auth/register',
+    homeRoute: '/dashboard',
+    unauthorizedRoute: '/auth/unauthorized'
+  },
   
   // ============================================
   // CONFIGURACIÓN DE DEPLOYMENT
@@ -39,7 +47,7 @@ export default {
     mode: (typeof import.meta !== 'undefined' && import.meta.env?.MODE) || process.env.NODE_ENV || 'development',
     buildOptimization: true,
     staticGeneration: true,
-    preloadModules: ['auth', 'base'], // Módulos críticos a precargar
+  preloadModules: ['auth', 'base', 'user'], // Módulos críticos a precargar
     lazyModules: [], // Módulos a cargar bajo demanda
   },
   
@@ -108,65 +116,42 @@ export default {
     },
     
     // ----------------------------------------
-    // ACCOUNT - Gestión de cuentas/perfiles
-    // Ruta: /migratum/account/*
+    // USER - Gestión de usuarios y roles
+    // Ruta: /migratum/users/*
     // ----------------------------------------
     {
-      id: 'account',
-      module: 'account',
+      id: 'user',
+      module: 'user',
       scope: 'admin',
-      config: './config/account.config.js',
       lazy: false,
-      routes: '/account',
+      routes: '/users',
       priority: 2,
       dependencies: ['auth'],
-      
-      // Rutas protegidas
+
       protectedRoutes: {
         '': {
           allow: true,
-          policies: [{ roles: ['admin', 'user'] }]
-        }
-      },
-      
-      // Configuración de routing
-      routing: {
-        parentModule: null,
-        routePrefix: 'account',
-        inheritLayouts: {
-          account: 'sites/migratum/layouts/AdminLayout.jsx'
-        }
-      }
-    },
-    
-    // ----------------------------------------
-    // ADMIN - Módulo de administración principal
-    // Ruta: /migratum/admin/*
-    // ----------------------------------------
-    {
-      id: 'admin',
-      module: 'admin',
-      scope: 'admin',
-      config: './config/admin.config.js',
-      lazy: false,
-      routes: '/admin',
-      priority: 3,
-      dependencies: ['auth', 'account'],
-      
-      // Rutas protegidas
-      protectedRoutes: {
-        '': {
+          policies: [{ allow: true }, { roles: ['admin', 'manager'] }]
+        },
+        'profile': {
           allow: true,
-          policies: [{ roles: ['admin'] }]
+          policies: [{ allow: true }, { roles: ['admin', 'manager', 'support'] }]
+        },
+        'roles': {
+          allow: true,
+          policies: [{ allow: true }, { roles: ['admin'] }]
+        },
+        'permissions': {
+          allow: true,
+          policies: [{ allow: true }, { roles: ['admin'] }]
         }
       },
-      
-      // Configuración de routing
+
       routing: {
         parentModule: null,
-        routePrefix: 'admin',
+        routePrefix: 'users',
         inheritLayouts: {
-          admin: 'sites/migratum/layouts/AdminLayout.jsx'
+          user: 'sites/migratum/layouts/AdminLayout.jsx'
         }
       }
     },
@@ -182,8 +167,8 @@ export default {
       config: './config/wallet.config.js',
       lazy: false,
       routes: '/wallet',
-      priority: 4,
-      dependencies: ['auth', 'account'],
+      priority: 3,
+      dependencies: ['auth', 'user'],
       
       // Rutas protegidas
       protectedRoutes: {
@@ -214,8 +199,8 @@ export default {
       config: './config/kyc.config.js',
       lazy: false,
       routes: '/kyc',
-      priority: 5,
-      dependencies: ['auth', 'account'],
+      priority: 4,
+      dependencies: ['auth', 'user'],
       
       // Rutas protegidas
       protectedRoutes: {

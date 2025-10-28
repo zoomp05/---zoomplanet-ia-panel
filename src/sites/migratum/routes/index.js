@@ -191,21 +191,23 @@ export const routes = [
         componentPath: "sites/migratum/pages/GenericModulePage.jsx",
         props: { moduleName: "Reportes y Analytics", pageName: "Actividad del Sistema" }
       },
-      // Administración (reutiliza módulo admin)
+      // Administración directa (sin módulo intermedio)
       {
-        path: "admin/users", // /migratum/admin/users
+        path: "users", // /migratum/users
+        moduleName: "user",
         componentPath: "modules/user/pages/Users.jsx",
       },
       {
-        path: "admin/users/roles", // /migratum/admin/users/roles
+        path: "users/roles", // /migratum/users/roles
+        moduleName: "user",
         componentPath: "modules/user/pages/Roles.jsx",
       },
       {
-        path: "admin/settings", // /migratum/admin/settings
+        path: "settings", // /migratum/settings
         componentPath: "modules/admin/pages/settings.jsx",
       },
       {
-        path: "admin/site-config", // /migratum/admin/site-config
+        path: "site-config", // /migratum/site-config
         componentPath: "modules/base/pages/SiteConfiguration.jsx",
       },
     ]

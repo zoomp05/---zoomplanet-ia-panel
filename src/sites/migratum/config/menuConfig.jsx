@@ -355,13 +355,13 @@ export const migratumSidebarConfig = [
             key: "admin-users", 
             icon: <TeamOutlined />, 
             label: "Usuarios", 
-            url: "/admin/users" 
+            url: "/users" 
           },
           { 
             key: "admin-roles", 
             icon: <SafetyCertificateOutlined />, 
             label: "Roles y Permisos", 
-            url: "/admin/users/roles" 
+            url: "/users/roles" 
           }
         ]
       },
@@ -373,12 +373,12 @@ export const migratumSidebarConfig = [
             key: "admin-settings", 
             icon: <SettingOutlined />, 
             label: "Configuración General", 
-            url: "/admin/settings" 
+            url: "/settings" 
           },
           { 
             key: "admin-site-config", 
             label: "Configuración del Sitio", 
-            url: "/admin/site-config" 
+            url: "/site-config" 
           }
         ]
       }
@@ -393,7 +393,7 @@ export const migratumTopMenuConfig = {
       key: 'profile',
       icon: <UserOutlined />,
       label: 'Mi Perfil',
-      url: '/admin/account',
+      url: '/users/profile',
       scope: 'site'
     },
     {

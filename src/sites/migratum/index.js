@@ -3,13 +3,13 @@
  * 
  * Este es un sitio de administración puro que:
  * - NO usa el módulo 'admin' como intermediario
- * - Importa directamente solo: base, auth, account
+ * - Importa directamente solo los módulos base (base, auth) y añadirá los específicos de Migratum de forma explícita
  * - Gestionará sus propios módulos administrativos
  * 
  * Flujo de inicialización:
  * 1. Cargar site.config.js
  * 2. Inicializar ModuleInitializer
- * 3. Cargar módulos en orden (base → auth → account)
+ * 3. Cargar módulos en orden (base → auth) y luego activar los módulos propios definidos en site.config.js
  * 4. Registrar rutas del sitio
  * 5. Registrar rutas de módulos
  */
@@ -29,8 +29,8 @@ export default {
   // Configuración modular del sitio
   config: siteConfig,
   
-  // Módulos raíz: solo base, auth y account
-  modules: ['base', 'auth', 'account'],
+  // Módulos raíz cargados desde el core; los módulos propios (wallet, kyc, etc.) se agregan desde site.config.js
+  modules: ['base', 'auth'],
   
   dependencies: [],
   
@@ -202,7 +202,8 @@ async function registerModuleHierarchyInPolicy() {
           instanceId: moduleId,
           auth: mergedModuleForHierarchy.auth,
           protectedRoutes: mergedModuleForHierarchy.protectedRoutes || {},
-          publicRoutes: mergedModuleForHierarchy.publicRoutes || []
+          publicRoutes: mergedModuleForHierarchy.publicRoutes || [],
+          routePrefix: mergedModuleForHierarchy.routing?.routePrefix || null
         };
         policyProcessor.registerModule(moduleConfig);
       }
