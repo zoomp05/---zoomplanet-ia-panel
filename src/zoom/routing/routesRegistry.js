@@ -23,14 +23,15 @@ export const registerSiteRoutes = (siteName, routes) => {
   routeTree[siteName].base = deepClone(routes || []);
 };
 
-export const registerModuleRoutes = (moduleName, routes, siteName, parentModule = null, inheritedLayouts = {}) => {
+export const registerModuleRoutes = (moduleName, routes, siteName, parentModule = null, inheritedLayouts = {}, options = {}) => {
   if (!siteName || !moduleName) return;
   if (!routeTree[siteName]) routeTree[siteName] = { base: [], modules: {} };
   const clonedRoutes = deepClone(routes || []);
+  const routePrefix = options.routePrefix || null;
 
   if (!parentModule) {
     // Registro a nivel raíz
-    routeTree[siteName].modules[moduleName] = { routes: clonedRoutes, submodules: {}, inheritedLayouts };
+    routeTree[siteName].modules[moduleName] = { routes: clonedRoutes, submodules: {}, inheritedLayouts, routePrefix };
     return;
   }
 
@@ -39,27 +40,30 @@ export const registerModuleRoutes = (moduleName, routes, siteName, parentModule 
   if (!parentNode) {
     // Si no existe el padre, crearlo en raíz para no perder las rutas (fallback)
     if (!routeTree[siteName].modules[parentModule]) {
-      routeTree[siteName].modules[parentModule] = { routes: [], submodules: {}, inheritedLayouts: {} };
+      routeTree[siteName].modules[parentModule] = { routes: [], submodules: {}, inheritedLayouts: {}, routePrefix: null };
     }
-    routeTree[siteName].modules[parentModule].submodules[moduleName] = { routes: clonedRoutes, submodules: {}, inheritedLayouts };
+    routeTree[siteName].modules[parentModule].submodules[moduleName] = { routes: clonedRoutes, submodules: {}, inheritedLayouts, routePrefix };
     return;
   }
 
   if (!parentNode.submodules) parentNode.submodules = {};
-  parentNode.submodules[moduleName] = { routes: clonedRoutes, submodules: {}, inheritedLayouts };
+  parentNode.submodules[moduleName] = { routes: clonedRoutes, submodules: {}, inheritedLayouts, routePrefix };
 };
 
 export const getAllRoutes = () => {
   const collected = [];
 
-  const pushRoutes = (siteName, moduleChain, moduleNode) => {
-    const base = `/${siteName}/${moduleChain.join('/')}`;
+  const pushRoutes = (siteName, moduleChain, moduleNode, pathSegments = []) => {
+    const currentName = moduleChain[moduleChain.length - 1];
+    const currentSegment = moduleNode.routePrefix || currentName;
+    const accumulated = [...pathSegments, currentSegment];
+    const base = `/${siteName}/${accumulated.join('/')}`;
     (moduleNode.routes || []).forEach(r => {
       const full = (r.path === '' || r.path == null) ? base : `${base}${r.path.startsWith('/') ? r.path : '/' + r.path}`;
       collected.push({ ...r, path: full });
     });
     Object.entries(moduleNode.submodules || {}).forEach(([subName, subNode]) => {
-      pushRoutes(siteName, [...moduleChain, subName], subNode);
+      pushRoutes(siteName, [...moduleChain, subName], subNode, accumulated);
     });
   };
 
@@ -70,7 +74,7 @@ export const getAllRoutes = () => {
       collected.push({ ...r, path: normalizedPath });
     });
     Object.entries(site.modules).forEach(([modName, modNode]) => {
-      pushRoutes(siteName, [modName], modNode);
+      pushRoutes(siteName, [modName], modNode, []);
     });
   });
   return collected;
