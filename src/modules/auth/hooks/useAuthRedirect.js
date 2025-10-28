@@ -15,26 +15,31 @@ export const useAuthRedirect = () => {
   const getCurrentContext = () => {
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const siteName = pathSegments[0] || null;
-    const first = pathSegments[1] || null; // puede ser 'auth' o un módulo padre (ej. 'admin')
-    const second = pathSegments[2] || null; // si first es módulo, puede ser 'auth'
-
-    let moduleName = null;
-    let relativePath = '';
-
     if (!siteName) return { siteName: null, moduleName: null, relativePath: '', fullPath: location.pathname };
 
-    if (first === 'auth') {
-      // Uso directo: /site/auth/...
+    const moduleChain = policyProcessor.resolveModuleChainFromPath(siteName, pathSegments.slice(1));
+    const primaryModule = moduleChain[0] || null;
+    const authIndex = moduleChain.indexOf('auth');
+
+    let moduleName = primaryModule;
+    let relativePath = '';
+
+    const remainingSegments = pathSegments.slice(1 + moduleChain.length);
+
+    if (authIndex === 0) {
+      // Ruta directa: /site/auth/...
       moduleName = 'auth';
-      relativePath = pathSegments.slice(2).join('/') || '';
-    } else if (second === 'auth') {
-      // Auth como submódulo de un módulo padre: /site/{parent}/auth/...
-      moduleName = first; // módulo padre (admin, etc.)
-      relativePath = pathSegments.slice(3).join('/') ? `auth/${pathSegments.slice(3).join('/')}` : 'auth/';
+      relativePath = remainingSegments.join('/') || '';
+    } else if (authIndex > 0) {
+      // Auth como submódulo: /site/{parent}/auth/...
+      moduleName = moduleChain[0];
+      const authSegments = ['auth', ...remainingSegments];
+      relativePath = authSegments.filter(Boolean).join('/') || 'auth';
+    } else if (primaryModule) {
+      relativePath = remainingSegments.join('/') || '';
     } else {
-      // Otras rutas dentro del módulo
-      moduleName = first;
-      relativePath = pathSegments.slice(2).join('/') || '';
+      moduleName = null;
+      relativePath = pathSegments.slice(1).join('/') || '';
     }
 
     return {
