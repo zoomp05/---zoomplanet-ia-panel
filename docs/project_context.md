@@ -73,10 +73,6 @@ Recordatorios push: Alertas sobre vencimientos y pagos pendientes.
 
 
 
-
-
-
-
 Módulo de Vivienda
 Búsqueda de propiedades: Listado de viviendas en renta o venta filtradas por ubicación y precio.
 
@@ -116,11 +112,6 @@ Historial de transacciones: Reportes de pagos hechos y recibidos.
 
 
 Facturas y recibos digitales: Generación automática para respaldo contable.
-
-
-
-
-
 
 
 Módulo de Listado de Servicios Adicionales
