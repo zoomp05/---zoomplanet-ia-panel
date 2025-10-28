@@ -8,7 +8,7 @@ export default {
   layouts: {
     kyc: "modules/admin/layouts/MainLayout.jsx", // Usa layout de admin por defecto
   },
-  install(siteName, parentModule = null, inheritedLayouts = {}) {
+  install(siteName, parentModule = null, inheritedLayouts = {}, routePrefix = null) {
     console.log(`Registrando rutas del módulo KYC para el sitio ${siteName}${parentModule ? ` en ${parentModule}` : ''}`);
     console.log(`Layouts heredados para KYC:`, inheritedLayouts);
     
@@ -17,6 +17,6 @@ export default {
     console.log(`Layouts combinados para KYC:`, combinedLayouts);
     
     // Registrar rutas del módulo KYC
-    registerModuleRoutes("kyc", routes, siteName, parentModule, combinedLayouts);
+    registerModuleRoutes("kyc", routes, siteName, parentModule, combinedLayouts, { routePrefix });
   }
 };
