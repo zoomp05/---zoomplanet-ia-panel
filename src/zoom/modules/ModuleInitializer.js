@@ -266,10 +266,14 @@ export class ModuleInitializer {
       // 10. Llamar al método install del módulo para registrar rutas
       if (typeof instance.install === 'function') {
         const routingConfig = finalConfig.routing || {};
-        const { parentModule: routingParent = parentModule, inheritLayouts = {} } = routingConfig;
+        const {
+          parentModule: routingParent = parentModule,
+          inheritLayouts = {},
+          routePrefix = null
+        } = routingConfig;
         
         console.log(`[ModuleInitializer] Registrando rutas de ${instanceId}...`);
-        await instance.install(this.siteId, routingParent, inheritLayouts);
+        await instance.install(this.siteId, routingParent, inheritLayouts, routePrefix);
       }
 
       // 11. Ejecutar hooks onAfterInit

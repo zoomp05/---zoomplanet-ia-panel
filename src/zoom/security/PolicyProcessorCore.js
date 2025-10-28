@@ -8,7 +8,7 @@ class PolicyProcessor {
     this.cache = new Map();
   // Nueva estructura jerárquica
   // hierarchy: { [siteName]: { authConfig, modules: { [moduleName]: ModuleNode } } }
-  // ModuleNode: { name, authConfig, children: {}, parent: string|null }
+  // ModuleNode: { name, authConfig, children: {}, parent: string|null, routePrefix: string|null }
   this.hierarchy = {};
   }
   registerSiteAuthConfig(siteName, siteAuthConfig) { if (!siteName || !siteAuthConfig) return; this.siteAuthConfigs.set(siteName, siteAuthConfig); console.log(`✅ AuthConfig de sitio registrado: ${siteName}`); }
@@ -17,11 +17,12 @@ class PolicyProcessor {
     if (!this.hierarchy[siteName]) this.hierarchy[siteName] = { authConfig: this.siteAuthConfigs.get(siteName) || null, modules: {} };
     const siteNode = this.hierarchy[siteName];
     const ensureNode = (name) => {
-      if (!siteNode.modules[name]) siteNode.modules[name] = { name, authConfig: null, children: {}, parent: null };
+      if (!siteNode.modules[name]) siteNode.modules[name] = { name, authConfig: null, children: {}, parent: null, routePrefix: null };
       return siteNode.modules[name];
     };
     const node = ensureNode(moduleName);
     node.authConfig = moduleConfig?.auth || null;
+    node.routePrefix = moduleConfig?.routing?.routePrefix || moduleConfig?.routePrefix || node.routePrefix || null;
     if (parentModuleName) {
       const parent = ensureNode(parentModuleName);
       node.parent = parentModuleName;
@@ -29,6 +30,35 @@ class PolicyProcessor {
     }
   }
   getHierarchy(siteName = null) { return siteName ? this.hierarchy[siteName] : this.hierarchy; }
+  getModulePathSegment(siteName, moduleName) {
+    if (!siteName || !moduleName) return null;
+    const siteNode = this.hierarchy[siteName];
+    const moduleNode = siteNode?.modules?.[moduleName];
+    const configPrefix = this.moduleConfigs.get(moduleName)?.routePrefix || null;
+    return moduleNode?.routePrefix || configPrefix || moduleName;
+  }
+  resolveModuleChainFromPath(siteName, pathSegments = []) {
+    if (!siteName) return [];
+    const siteNode = this.hierarchy[siteName];
+    if (!siteNode) return [];
+    const chain = [];
+    let currentModules = siteNode.modules;
+    let currentNode = null;
+    for (const segment of pathSegments) {
+      if (!currentModules) break;
+      const entries = Object.entries(currentModules);
+      const match = entries.find(([name, node]) => {
+        const seg = node.routePrefix || name;
+        return seg === segment;
+      });
+      if (!match) break;
+      const [name, node] = match;
+      chain.push(name);
+      currentNode = node;
+      currentModules = node.children;
+    }
+    return chain;
+  }
   buildModuleChain(siteName, moduleName) {
     const siteNode = this.hierarchy[siteName]; if (!siteNode) return [];
     const modules = siteNode.modules; const chain = []; let current = modules[moduleName];
@@ -124,9 +154,14 @@ class PolicyProcessor {
       // que se quiere resolver es para un submódulo (ej: '/auth/login'),
       // debemos construir la ruta jerárquicamente.
       if (currentModule && currentModule !== possibleModule) {
-        const result = `/${currentSite}/${currentModule}${route}`;
-        console.log(`[resolveHierarchicalRoute] ✅ (2) Forzando jerarquía: ${currentModule} + ${route} -> ${result}`);
-        return result;
+        const siteNode = this.hierarchy[currentSite];
+        const parentNode = siteNode?.modules?.[currentModule];
+        if (parentNode?.children?.[possibleModule]) {
+          const parentSegment = this.getModulePathSegment(currentSite, currentModule);
+          const result = `/${currentSite}/${parentSegment}${route}`;
+          console.log(`[resolveHierarchicalRoute] ✅ (2) Forzando jerarquía: ${parentSegment} + ${route} -> ${result}`);
+          return result;
+        }
       }
 
       // Si no hay un módulo padre que corregir, se añade el sitio.
@@ -137,7 +172,8 @@ class PolicyProcessor {
 
     // Para rutas relativas (sin / inicial)
     if (currentModule) {
-      const result = `/${currentSite}/${currentModule}/${route}`;
+      const parentSegment = this.getModulePathSegment(currentSite, currentModule);
+      const result = `/${currentSite}/${parentSegment}/${route}`;
       console.log(`[resolveHierarchicalRoute] ✅ (4) Ruta relativa con módulo: ${result}`);
       return result;
     }
@@ -149,13 +185,21 @@ class PolicyProcessor {
 
   getResolvedAuthConfig(moduleConfig, currentSite, currentModule, context = {}) {
     const moduleAuth = moduleConfig?.auth || {}; const siteAuth = currentSite ? (this.siteAuthConfigs.get(currentSite) || {}) : {};
+    const moduleSegment = currentModule ? this.getModulePathSegment(currentSite, currentModule) : null;
+    const defaultPath = moduleSegment ? `/${moduleSegment}/dashboard` : '/dashboard';
     const pick = (key, def) => { const v = siteAuth?.[key] ?? moduleAuth?.[key] ?? def; return this.resolveHierarchicalRoute(v, currentSite, currentModule, context); };
-    return { defaultRedirect: pick('defaultRedirect', `/${currentModule || ''}/dashboard`), loginRoute: pick('loginRoute', '/auth/login'), registerRoute: pick('registerRoute', '/auth/register'), homeRoute: pick('homeRoute', `/${currentModule || ''}/dashboard`), unauthorizedRoute: pick('unauthorizedRoute', '/auth/unauthorized') };
+    return {
+      defaultRedirect: pick('defaultRedirect', defaultPath),
+      loginRoute: pick('loginRoute', '/auth/login'),
+      registerRoute: pick('registerRoute', '/auth/register'),
+      homeRoute: pick('homeRoute', defaultPath),
+      unauthorizedRoute: pick('unauthorizedRoute', '/auth/unauthorized')
+    };
   }
   registerModule(moduleConfig) { this.moduleConfigs.set(moduleConfig.moduleName, moduleConfig); console.log(`✅ Módulo registrado: ${moduleConfig.moduleName}`); }
   async evaluateAccess(moduleName, route, user, siteId, context = {}) {
     const moduleConfig = this.moduleConfigs.get(moduleName);
-    if (!moduleConfig) { console.warn(`⚠️ No se encontró configuración para el módulo: ${moduleName}`); const fallbackLoginRoute = this.resolveHierarchicalRoute('/auth/login', siteId, null, context); return { allow: false, redirectTo: fallbackLoginRoute }; }
+  if (!moduleConfig) { console.warn(`⚠️ No se encontró configuración para el módulo: ${moduleName}`); const fallbackLoginRoute = this.resolveHierarchicalRoute('/auth/login', siteId, null, context); return { allow: false, redirectTo: fallbackLoginRoute }; }
     const resolvedAuthConfig = this.getResolvedAuthConfig(moduleConfig, siteId, moduleName, context);
     const routeConfig = this.findRouteConfig(moduleConfig, route);
     if (!routeConfig) { console.log(`✅ Ruta sin configuración específica, permitiendo acceso: ${route}`); return { allow: true }; }
@@ -175,7 +219,35 @@ class PolicyProcessor {
   async getUserPermissions(userId, siteId) { if (!userId) return []; return [{ name: 'admin.access' }, { name: 'user.manage' }, { name: 'dashboard.view' }, { name: 'user.create' }, { name: 'user.edit' }, { name: 'system.config' }, { name: 'reports.view' }, { name: 'marketing.access' }, { name: 'campaign.manage' }, { name: 'campaign.create' }, { name: 'analytics.view' }, { name: 'reports.generate' }]; }
   findRouteConfig(moduleConfig, route) { const normalizedRoute = route.startsWith('/') ? route.slice(1) : route; if (moduleConfig.protectedRoutes[normalizedRoute]) return moduleConfig.protectedRoutes[normalizedRoute]; const routeParts = normalizedRoute.split('/'); for (let i = routeParts.length - 1; i >= 0; i--) { const parentRoute = routeParts.slice(0, i).join('/'); if (moduleConfig.protectedRoutes[parentRoute]) { return moduleConfig.protectedRoutes[parentRoute]; } } return moduleConfig.protectedRoutes['']; }
   getPolicyDescription(policy) { const parts = []; if (policy.roles) parts.push(`roles: [${policy.roles.join(', ')}]`); if (policy.permissions) parts.push(`permissions: [${policy.permissions.join(', ')}]`); if (policy.matchCallback) parts.push('callback personalizado'); return parts.join(' + ') || 'política desconocida'; }
-  getRedirectRoute(moduleName, type = 'login', siteId = null, context = {}) { const moduleConfig = this.moduleConfigs.get(moduleName); const siteAuth = siteId ? this.siteAuthConfigs.get(siteId) : null; if (siteAuth) { const keyMap = { login: 'loginRoute', register: 'registerRoute', home: 'homeRoute', unauthorized: 'unauthorizedRoute' }; const key = keyMap[type] || 'loginRoute'; const candidate = siteAuth[key]; if (candidate) { return this.resolveHierarchicalRoute(candidate, siteId, moduleName, context); } } if (!moduleConfig || !moduleConfig.auth) { const fallbackRoute = this.resolveHierarchicalRoute('/auth/login', siteId, null, context); return fallbackRoute; } const resolvedAuthConfig = this.getResolvedAuthConfig(moduleConfig, siteId, moduleName, context); switch (type) { case 'login': return resolvedAuthConfig.loginRoute; case 'register': return resolvedAuthConfig.registerRoute; case 'home': return resolvedAuthConfig.homeRoute; case 'unauthorized': return resolvedAuthConfig.unauthorizedRoute; default: return resolvedAuthConfig.loginRoute; } }
+  getRedirectRoute(moduleName, type = 'login', siteId = null, context = {}) {
+    const moduleConfig = this.moduleConfigs.get(moduleName);
+    const siteAuth = siteId ? this.siteAuthConfigs.get(siteId) : null;
+    if (siteAuth) {
+      const keyMap = { login: 'loginRoute', register: 'registerRoute', home: 'homeRoute', unauthorized: 'unauthorizedRoute' };
+      const key = keyMap[type] || 'loginRoute';
+      const candidate = siteAuth[key];
+      if (candidate) {
+        return this.resolveHierarchicalRoute(candidate, siteId, moduleName, context);
+      }
+    }
+    if (!moduleConfig || !moduleConfig.auth) {
+      const fallbackRoute = this.resolveHierarchicalRoute('/auth/login', siteId, moduleName, context);
+      return fallbackRoute;
+    }
+    const resolvedAuthConfig = this.getResolvedAuthConfig(moduleConfig, siteId, moduleName, context);
+    switch (type) {
+      case 'login':
+        return resolvedAuthConfig.loginRoute;
+      case 'register':
+        return resolvedAuthConfig.registerRoute;
+      case 'home':
+        return resolvedAuthConfig.homeRoute;
+      case 'unauthorized':
+        return resolvedAuthConfig.unauthorizedRoute;
+      default:
+        return resolvedAuthConfig.loginRoute;
+    }
+  }
   clearCache() { this.cache.clear(); }
   getStats() { const stats = { totalModules: this.moduleConfigs.size, modules: {} }; for (const [moduleName, config] of this.moduleConfigs) { stats.modules[moduleName] = { routes: Object.keys(config.protectedRoutes || {}).length }; } return stats; }
 }
